@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  --color-yen-black: #000000;
+  --color-yen-gold: #fdd131;
+  --color-yen-red: #f5442f;
+  --color-yen-white: #f4f1f1;
+
+  --color-yen-dark: #090909;
+  --color-yen-gray: #6b7280;
+  --color-yen-light: #f7f7f5;
+
+  --font-display: "Poppins", sans-serif;
+  --font-body: "Merriweather", serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background-color: #ffffff;
+  color: #000000;
+  font-family: "Merriweather", Georgia, serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+nav,
+button,
+input,
+select,
+textarea {
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* Hero slideshow */
+
+.hero-fade-enter-active,
+.hero-fade-leave-active {
+  transition: opacity 1.2s ease;
+}
+
+.hero-fade-enter-from,
+.hero-fade-leave-to {
+  opacity: 0;
+}
+
+.hero-fade-enter-to,
+.hero-fade-leave-from {
+  opacity: 1;
+}
+
+/* Respect users who request reduced animation */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+
+  .hero-fade-enter-active,
+  .hero-fade-leave-active {
+    transition: none;
+  }
+}
