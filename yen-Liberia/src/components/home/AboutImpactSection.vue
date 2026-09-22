@@ -205,18 +205,16 @@
         </div>
 
         <!-- Learn More -->
-        <a
-          href="#"
-          class="mt-9 inline-flex items-center gap-3 font-display text-sm font-bold text-black transition hover:text-yen-red"
-        >
-          Learn more about YEN-Liberia
+        <RouterLink
+  :to="{ name: 'about' }"
+  class="YOUR-EXISTING-CLASS-HERE"
+>
+  Learn More About YEN
 
-          <span
-            class="flex h-9 w-9 items-center justify-center rounded-full bg-black text-yen-gold transition group-hover:bg-yen-red"
-          >
-            →
-          </span>
-        </a>
+  <span>
+    →
+  </span>
+</RouterLink>
       </div>
     </div>
 

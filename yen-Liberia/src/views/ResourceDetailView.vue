@@ -7,9 +7,9 @@ import {
 import { useRoute } from "vue-router"
 
 import {
-  opportunities,
-  getOpportunityBySlug,
-} from "@/data/opportunities"
+  resources,
+  getResourceBySlug,
+} from "@/data/resources"
 
 
 /*
@@ -23,16 +23,16 @@ const route = useRoute()
 
 /*
 |--------------------------------------------------------------------------
-| CURRENT OPPORTUNITY
+| CURRENT RESOURCE
 |--------------------------------------------------------------------------
 */
 
-const opportunity = computed(() => {
+const resource = computed(() => {
   const slug = String(
     route.params.slug ?? "",
   )
 
-  return getOpportunityBySlug(slug)
+  return getResourceBySlug(slug)
 })
 
 
@@ -42,69 +42,50 @@ const opportunity = computed(() => {
 |--------------------------------------------------------------------------
 */
 
-const eligibility = computed(() => {
+const contents = computed(() => {
   return Array.isArray(
-    opportunity.value?.eligibility,
+    resource.value?.contents,
   )
-    ? opportunity.value.eligibility
-    : []
-})
-
-
-const benefits = computed(() => {
-  return Array.isArray(
-    opportunity.value?.benefits,
-  )
-    ? opportunity.value.benefits
-    : []
-})
-
-
-const requirements = computed(() => {
-  return Array.isArray(
-    opportunity.value?.requirements,
-  )
-    ? opportunity.value.requirements
+    ? resource.value.contents
     : []
 })
 
 
 /*
 |--------------------------------------------------------------------------
-| RELATED OPPORTUNITIES
+| RELATED RESOURCES
 |--------------------------------------------------------------------------
 |
-| Prioritize other opportunities in the same category,
-| then fill remaining spaces with other records.
+| Prefer resources from the same category,
+| then fill remaining spaces with other resources.
 |
 */
 
-const relatedOpportunities = computed(() => {
-  if (!opportunity.value) {
+const relatedResources = computed(() => {
+  if (!resource.value) {
     return []
   }
 
   const currentId =
-    opportunity.value.id
+    resource.value.id
 
-  const otherOpportunities =
-    opportunities.filter(
-      (item) =>
-        item.id !== currentId,
-    )
+  const others = resources.filter(
+    (item) =>
+      item.id !== currentId,
+  )
 
   const sameCategory =
-    otherOpportunities.filter(
+    others.filter(
       (item) =>
         item.category ===
-        opportunity.value.category,
+        resource.value.category,
     )
 
   const differentCategory =
-    otherOpportunities.filter(
+    others.filter(
       (item) =>
         item.category !==
-        opportunity.value.category,
+        resource.value.category,
     )
 
   return [
@@ -116,7 +97,7 @@ const relatedOpportunities = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
-| DYNAMIC PAGE TITLE
+| DYNAMIC DOCUMENT TITLE
 |--------------------------------------------------------------------------
 */
 
@@ -124,20 +105,20 @@ watchEffect(() => {
   const siteName =
     "Youth Entrepreneurs Network–Liberia"
 
-  document.title = opportunity.value
-    ? `${opportunity.value.title} | ${siteName}`
-    : `Opportunity Not Found | ${siteName}`
+  document.title = resource.value
+    ? `${resource.value.title} | ${siteName}`
+    : `Resource Not Found | ${siteName}`
 })
 </script>
 
 
 <template>
   <!-- ==========================================
-       VALID OPPORTUNITY
+       VALID RESOURCE
   =========================================== -->
 
   <main
-    v-if="opportunity"
+    v-if="resource"
     class="w-full overflow-hidden"
   >
 
@@ -146,13 +127,13 @@ watchEffect(() => {
     ========================================= -->
 
     <section
-      class="relative isolate min-h-[560px] overflow-hidden sm:min-h-[600px] lg:min-h-[640px]"
+      class="relative isolate min-h-[540px] overflow-hidden sm:min-h-[580px] lg:min-h-[620px]"
     >
       <!-- Background -->
 
       <img
-        :src="opportunity.image"
-        :alt="opportunity.title"
+        :src="resource.image"
+        :alt="resource.title"
         class="absolute inset-0 h-full w-full object-cover object-center"
       />
 
@@ -171,7 +152,7 @@ watchEffect(() => {
       <!-- Content -->
 
       <div
-        class="relative z-10 mx-auto flex min-h-[560px] max-w-7xl items-center px-5 py-16 sm:min-h-[600px] sm:px-6 sm:py-20 lg:min-h-[640px] lg:px-8"
+        class="relative z-10 mx-auto flex min-h-[540px] max-w-7xl items-center px-5 py-16 sm:min-h-[580px] sm:px-6 sm:py-20 lg:min-h-[620px] lg:px-8"
       >
         <div class="w-full max-w-4xl">
 
@@ -196,10 +177,10 @@ watchEffect(() => {
             </span>
 
             <RouterLink
-              :to="{ name: 'opportunities' }"
+              :to="{ name: 'resources' }"
               class="text-white/55 transition hover:text-yen-gold"
             >
-              Opportunities
+              Resources
             </RouterLink>
 
             <span
@@ -214,65 +195,51 @@ watchEffect(() => {
               aria-current="page"
             >
               {{
-                opportunity.category ||
-                opportunity.title
+                resource.type ||
+                resource.title
               }}
             </span>
           </nav>
 
 
-          <!-- Organization -->
+          <!-- Metadata -->
 
-          <p
-            v-if="opportunity.organization"
-            class="font-display text-[10px] font-extrabold uppercase tracking-[0.2em] text-yen-gold sm:text-xs"
+          <div
+            class="flex flex-wrap gap-3"
           >
-            {{ opportunity.organization }}
-          </p>
+            <span
+              v-if="resource.type"
+              class="rounded-full bg-yen-gold px-4 py-2 font-display text-[10px] font-extrabold uppercase tracking-wide text-black"
+            >
+              {{ resource.type }}
+            </span>
+
+            <span
+              v-if="resource.format"
+              class="rounded-full border border-white/25 bg-black/20 px-4 py-2 font-display text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md"
+            >
+              {{ resource.format }}
+            </span>
+          </div>
 
 
           <!-- Title -->
 
           <h1
-            class="mt-5 max-w-4xl font-display text-[38px] font-extrabold leading-[1.06] tracking-tight text-white min-[390px]:text-[44px] sm:text-6xl lg:text-7xl"
+            class="mt-6 max-w-4xl font-display text-[38px] font-extrabold leading-[1.06] tracking-tight text-white min-[390px]:text-[44px] sm:text-5xl lg:text-6xl"
           >
-            {{ opportunity.title }}
+            {{ resource.title }}
           </h1>
 
 
           <!-- Summary -->
 
           <p
-            v-if="opportunity.summary"
-            class="mt-6 max-w-2xl font-body text-sm leading-7 text-white/80 sm:mt-7 sm:text-lg sm:leading-8"
+            v-if="resource.summary"
+            class="mt-6 max-w-2xl font-body text-sm leading-7 text-white/80 sm:text-lg sm:leading-8"
           >
-            {{ opportunity.summary }}
+            {{ resource.summary }}
           </p>
-
-
-          <!-- Badges -->
-
-          <div
-            v-if="
-              opportunity.category ||
-              opportunity.status
-            "
-            class="mt-8 flex flex-wrap gap-3"
-          >
-            <span
-              v-if="opportunity.category"
-              class="rounded-full bg-yen-gold px-4 py-2 font-display text-[10px] font-bold uppercase tracking-wide text-black sm:text-xs"
-            >
-              {{ opportunity.category }}
-            </span>
-
-            <span
-              v-if="opportunity.status"
-              class="rounded-full border border-white/25 bg-black/20 px-4 py-2 font-display text-[10px] font-semibold text-white backdrop-blur-md sm:text-xs"
-            >
-              {{ opportunity.status }}
-            </span>
-          </div>
         </div>
       </div>
 
@@ -286,13 +253,14 @@ watchEffect(() => {
 
 
     <!-- ========================================
-         OVERVIEW
+         RESOURCE CONTENT
     ========================================= -->
 
     <section class="bg-white">
       <div
         class="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:px-8 lg:py-28"
       >
+
         <!-- ==================================
              MAIN CONTENT
         =================================== -->
@@ -301,90 +269,49 @@ watchEffect(() => {
           <p
             class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
           >
-            Opportunity Overview
+            Resource Overview
           </p>
 
           <h2
             class="mt-4 font-display text-3xl font-extrabold leading-tight text-black min-[390px]:text-4xl sm:text-5xl"
           >
-            About this opportunity
+            About this resource
           </h2>
 
           <p
-            v-if="opportunity.description"
+            v-if="resource.description"
             class="mt-6 font-body text-sm leading-8 text-gray-600 sm:text-base"
           >
-            {{ opportunity.description }}
+            {{ resource.description }}
           </p>
 
 
           <!-- =================================
-               ELIGIBILITY
+               CONTENTS
           ================================== -->
 
           <section
-            v-if="eligibility.length"
+            v-if="contents.length"
             class="mt-10 sm:mt-12"
-            aria-labelledby="eligibility-heading"
+            aria-labelledby="resource-contents-heading"
           >
             <h3
-              id="eligibility-heading"
+              id="resource-contents-heading"
               class="font-display text-2xl font-bold text-black"
             >
-              Who Can Apply
-            </h3>
-
-            <ul
-              class="mt-6 space-y-4"
-            >
-              <li
-                v-for="item in eligibility"
-                :key="item"
-                class="flex items-start gap-4"
-              >
-                <span
-                  class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-yen-gold font-display text-xs font-black text-black"
-                  aria-hidden="true"
-                >
-                  ✓
-                </span>
-
-                <span
-                  class="font-body text-sm leading-7 text-gray-600"
-                >
-                  {{ item }}
-                </span>
-              </li>
-            </ul>
-          </section>
-
-
-          <!-- =================================
-               BENEFITS
-          ================================== -->
-
-          <section
-            v-if="benefits.length"
-            class="mt-10 sm:mt-12"
-            aria-labelledby="benefits-heading"
-          >
-            <h3
-              id="benefits-heading"
-              class="font-display text-2xl font-bold text-black"
-            >
-              What You Can Gain
+              What's Included
             </h3>
 
             <ol
               class="mt-6 grid gap-4 sm:grid-cols-2"
             >
               <li
-                v-for="(benefit, index) in benefits"
-                :key="benefit"
-                class="flex h-full flex-col rounded-[1.3rem] bg-[#f7f7f5] p-6"
+                v-for="(item, index) in contents"
+                :key="`${index}-${item}`"
+                class="flex h-full items-start gap-4 rounded-[1.3rem] bg-[#f7f7f5] p-5 sm:p-6"
               >
                 <span
-                  class="font-display text-sm font-extrabold text-yen-red"
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yen-gold font-display text-xs font-bold text-black"
                   aria-hidden="true"
                 >
                   {{
@@ -394,61 +321,22 @@ watchEffect(() => {
                 </span>
 
                 <span
-                  class="mt-3 font-display text-sm font-bold leading-6 text-black"
+                  class="font-display text-sm font-semibold leading-6 text-black"
                 >
-                  {{ benefit }}
+                  {{ item }}
                 </span>
               </li>
             </ol>
-          </section>
-
-
-          <!-- =================================
-               REQUIREMENTS
-          ================================== -->
-
-          <section
-            v-if="requirements.length"
-            class="mt-10 sm:mt-12"
-            aria-labelledby="requirements-heading"
-          >
-            <h3
-              id="requirements-heading"
-              class="font-display text-2xl font-bold text-black"
-            >
-              Application Requirements
-            </h3>
-
-            <ul
-              class="mt-6 space-y-3"
-            >
-              <li
-                v-for="requirement in requirements"
-                :key="requirement"
-                class="flex items-start gap-3"
-              >
-                <span
-                  class="mt-3 h-2 w-2 shrink-0 rounded-full bg-yen-red"
-                  aria-hidden="true"
-                ></span>
-
-                <span
-                  class="font-body text-sm leading-7 text-gray-600"
-                >
-                  {{ requirement }}
-                </span>
-              </li>
-            </ul>
           </section>
         </div>
 
 
         <!-- ==================================
-             SIDEBAR
+             RESOURCE SIDEBAR
         =================================== -->
 
         <aside
-          aria-label="Opportunity details"
+          aria-label="Resource information"
         >
           <div
             class="overflow-hidden rounded-[1.6rem] bg-black sm:rounded-[1.8rem] lg:sticky lg:top-28"
@@ -459,127 +347,148 @@ watchEffect(() => {
               <p
                 class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
               >
-                Opportunity Details
+                Resource Information
               </p>
 
 
-              <div
+              <dl
                 class="mt-7 divide-y divide-white/10"
               >
-                <!-- Organization -->
+                <!-- Category -->
 
                 <div
-                  v-if="opportunity.organization"
+                  v-if="resource.category"
                   class="py-5 first:pt-0"
                 >
-                  <p
+                  <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
-                    Organization
-                  </p>
+                    Category
+                  </dt>
 
-                  <p
+                  <dd
                     class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
-                    {{ opportunity.organization }}
-                  </p>
+                    {{ resource.category }}
+                  </dd>
                 </div>
 
 
-                <!-- Location -->
+                <!-- Type -->
 
                 <div
-                  v-if="opportunity.location"
+                  v-if="resource.type"
                   class="py-5 first:pt-0"
                 >
-                  <p
+                  <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
-                    Location
-                  </p>
+                    Resource Type
+                  </dt>
 
-                  <p
+                  <dd
                     class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
-                    {{ opportunity.location }}
-                  </p>
+                    {{ resource.type }}
+                  </dd>
                 </div>
 
 
                 <!-- Format -->
 
                 <div
-                  v-if="opportunity.format"
+                  v-if="resource.format"
                   class="py-5 first:pt-0"
                 >
-                  <p
+                  <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
                     Format
-                  </p>
+                  </dt>
 
-                  <p
+                  <dd
                     class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
-                    {{ opportunity.format }}
-                  </p>
+                    {{ resource.format }}
+                  </dd>
                 </div>
 
 
-                <!-- Deadline -->
+                <!-- Audience -->
 
                 <div
-                  v-if="opportunity.deadline"
+                  v-if="resource.audience"
                   class="py-5 first:pt-0"
                 >
-                  <p
+                  <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
-                    Deadline
-                  </p>
+                    Designed For
+                  </dt>
 
-                  <p
-                    class="mt-2 font-display text-sm font-bold leading-6 text-yen-gold"
+                  <dd
+                    class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
-                    {{ opportunity.deadline }}
-                  </p>
+                    {{ resource.audience }}
+                  </dd>
                 </div>
 
 
                 <!-- Status -->
 
                 <div
-                  v-if="opportunity.status"
+                  v-if="resource.status"
                   class="py-5 first:pt-0"
                 >
-                  <p
+                  <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
                     Status
-                  </p>
+                  </dt>
 
-                  <span
-                    class="mt-2 inline-flex rounded-full bg-white/10 px-3 py-2 font-display text-[10px] font-bold uppercase text-white"
+                  <dd
+                    class="mt-2 font-display text-sm font-bold leading-6 text-yen-gold"
                   >
-                    {{ opportunity.status }}
-                  </span>
+                    {{ resource.status }}
+                  </dd>
                 </div>
-              </div>
+              </dl>
 
 
               <!-- =================================
-                   APPLY BUTTON
+                   LOCAL DOWNLOAD
               ================================== -->
 
               <a
-                v-if="opportunity.applicationUrl"
-                :href="opportunity.applicationUrl"
+                v-if="resource.fileUrl"
+                :href="resource.fileUrl"
+                download
+                class="mt-7 flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
+              >
+                Download Resource
+
+                <span
+                  class="ml-3"
+                  aria-hidden="true"
+                >
+                  ↓
+                </span>
+              </a>
+
+
+              <!-- =================================
+                   EXTERNAL RESOURCE
+              ================================== -->
+
+              <a
+                v-else-if="resource.externalUrl"
+                :href="resource.externalUrl"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="mt-7 flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
-                :aria-label="`Apply for ${opportunity.title} — opens external application in a new tab`"
+                :aria-label="`Open ${resource.title} — opens external resource in a new tab`"
               >
-                Apply Now
+                Open Resource
 
                 <span
                   class="ml-3"
@@ -590,25 +499,23 @@ watchEffect(() => {
               </a>
 
 
-              <!-- No application URL -->
+              <!-- Resource unavailable -->
 
               <div
                 v-else
-                class="mt-7"
+                class="mt-7 rounded-xl border border-white/10 bg-white/5 p-5 text-center"
               >
-                <button
-                  type="button"
-                  disabled
-                  class="flex w-full cursor-not-allowed items-center justify-center rounded-full bg-white/10 px-7 py-4 font-display text-sm font-bold text-white/45"
+                <p
+                  class="font-display text-xs font-bold text-white/65"
                 >
-                  Applications Not Open Yet
-                </button>
+                  Resource file not currently available
+                </p>
 
                 <p
-                  class="mt-3 text-center font-body text-xs leading-5 text-white/40"
+                  class="mt-2 font-body text-xs leading-6 text-white/40"
                 >
-                  An official application link has not been
-                  published on this page.
+                  No approved download or external resource link
+                  has been attached to this entry.
                 </p>
               </div>
 
@@ -616,15 +523,15 @@ watchEffect(() => {
               <!-- Back -->
 
               <RouterLink
-                :to="{ name: 'opportunities' }"
+                :to="{ name: 'resources' }"
                 class="mt-4 flex w-full items-center justify-center rounded-full border border-white/20 px-6 py-3.5 font-display text-xs font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
               >
-                ← Browse Opportunities
+                ← Browse Resources
               </RouterLink>
             </div>
 
 
-            <!-- Verification note -->
+            <!-- Notice -->
 
             <div
               class="bg-yen-gold px-6 py-5 sm:px-8"
@@ -632,9 +539,9 @@ watchEffect(() => {
               <p
                 class="font-body text-xs leading-6 text-black/70"
               >
-                Always verify eligibility, requirements,
-                deadlines and submission instructions with the
-                official organization before applying.
+                Use resources according to the guidance,
+                attribution requirements and terms provided by
+                YEN-Liberia or the original publisher.
               </p>
             </div>
           </div>
@@ -644,11 +551,11 @@ watchEffect(() => {
 
 
     <!-- ========================================
-         RELATED OPPORTUNITIES
+         RELATED RESOURCES
     ========================================= -->
 
     <section
-      v-if="relatedOpportunities.length"
+      v-if="relatedResources.length"
       class="bg-[#f7f7f5]"
     >
       <div
@@ -663,22 +570,22 @@ watchEffect(() => {
             <p
               class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
             >
-              Keep Exploring
+              Keep Learning
             </p>
 
             <h2
               class="mt-3 font-display text-3xl font-extrabold leading-tight text-black sm:text-4xl"
             >
-              Related opportunities
+              Related resources
             </h2>
           </div>
 
 
           <RouterLink
-            :to="{ name: 'opportunities' }"
+            :to="{ name: 'resources' }"
             class="inline-flex items-center gap-2 font-display text-sm font-bold text-black transition hover:text-yen-red"
           >
-            View All Opportunities
+            View Resource Library
 
             <span aria-hidden="true">
               →
@@ -693,7 +600,7 @@ watchEffect(() => {
           class="mt-9 grid gap-6 md:grid-cols-2 xl:grid-cols-3"
         >
           <article
-            v-for="item in relatedOpportunities"
+            v-for="item in relatedResources"
             :key="item.id"
             class="group flex h-full flex-col overflow-hidden rounded-[1.6rem] bg-white transition duration-300 hover:-translate-y-2 hover:shadow-xl"
           >
@@ -714,13 +621,11 @@ watchEffect(() => {
               ></div>
 
 
-              <!-- Category -->
-
               <span
-                v-if="item.category"
+                v-if="item.type"
                 class="absolute left-4 top-4 rounded-full bg-yen-gold px-3 py-2 font-display text-[9px] font-extrabold uppercase text-black"
               >
-                {{ item.category }}
+                {{ item.type }}
               </span>
             </div>
 
@@ -731,14 +636,14 @@ watchEffect(() => {
               class="flex flex-1 flex-col p-6"
             >
               <p
-                v-if="item.organization"
-                class="font-display text-xs font-semibold leading-5 text-yen-red"
+                v-if="item.category"
+                class="font-display text-[9px] font-extrabold uppercase tracking-[0.14em] text-yen-red"
               >
-                {{ item.organization }}
+                {{ item.category }}
               </p>
 
               <h3
-                class="mt-2 font-display text-xl font-bold leading-snug text-black"
+                class="mt-3 font-display text-xl font-bold leading-snug text-black"
               >
                 {{ item.title }}
               </h3>
@@ -751,65 +656,17 @@ watchEffect(() => {
               </p>
 
 
-              <!-- Metadata -->
-
-              <div
-                class="mt-auto pt-6"
-              >
-                <div
-                  v-if="
-                    item.location ||
-                    item.deadline
-                  "
-                  class="space-y-3 border-t border-gray-100 pt-5"
-                >
-                  <div
-                    v-if="item.location"
-                    class="flex items-start justify-between gap-4"
-                  >
-                    <span
-                      class="font-display text-[9px] font-bold uppercase text-gray-400"
-                    >
-                      Location
-                    </span>
-
-                    <span
-                      class="text-right font-display text-xs font-semibold leading-5 text-black"
-                    >
-                      {{ item.location }}
-                    </span>
-                  </div>
-
-
-                  <div
-                    v-if="item.deadline"
-                    class="flex items-start justify-between gap-4"
-                  >
-                    <span
-                      class="font-display text-[9px] font-bold uppercase text-gray-400"
-                    >
-                      Deadline
-                    </span>
-
-                    <span
-                      class="text-right font-display text-xs font-semibold leading-5 text-yen-red"
-                    >
-                      {{ item.deadline }}
-                    </span>
-                  </div>
-                </div>
-
-
+              <div class="mt-auto pt-6">
                 <RouterLink
                   :to="{
-                    name: 'opportunity-detail',
+                    name: 'resource-detail',
                     params: {
                       slug: item.slug,
                     },
                   }"
-                  class="mt-6 flex items-center justify-between rounded-xl bg-black px-5 py-4 font-display text-sm font-bold text-white transition group-hover:bg-yen-red"
+                  class="flex items-center justify-between rounded-xl bg-black px-5 py-4 font-display text-sm font-bold text-white transition group-hover:bg-yen-red"
                 >
-                  View Opportunity
+                  View Resource
 
                   <span
                     class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yen-gold text-black"
@@ -845,41 +702,37 @@ watchEffect(() => {
           <div
             class="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center"
           >
-            <!-- Copy -->
-
             <div class="max-w-3xl">
               <p
                 class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
               >
-                Find Your Next Step
+                Build With Better Tools
               </p>
 
               <h2
                 class="mt-4 font-display text-2xl font-extrabold leading-tight text-white sm:text-4xl"
               >
-                More opportunities are waiting.
+                Explore more resources for your business.
               </h2>
 
               <p
                 class="mt-4 max-w-2xl font-body text-sm leading-7 text-white/60 sm:text-base"
               >
-                Browse the full YEN-Liberia Opportunities Hub
-                or join the network to stay connected to
-                entrepreneurship programs and opportunities.
+                Browse the full resource library or tell
+                YEN-Liberia what kind of business tool would be
+                useful to you.
               </p>
             </div>
 
-
-            <!-- CTAs -->
 
             <div
               class="flex flex-col gap-3 sm:flex-row lg:flex-col"
             >
               <RouterLink
-                :to="{ name: 'opportunities' }"
+                :to="{ name: 'resources' }"
                 class="inline-flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white sm:w-auto sm:min-w-[220px]"
               >
-                Browse Opportunities
+                Browse Resources
 
                 <span
                   class="ml-3"
@@ -890,10 +743,10 @@ watchEffect(() => {
               </RouterLink>
 
               <RouterLink
-                :to="{ name: 'join' }"
+                :to="{ name: 'contact' }"
                 class="inline-flex w-full items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold sm:w-auto sm:min-w-[220px]"
               >
-                Join YEN-Liberia
+                Request a Resource
               </RouterLink>
             </div>
           </div>
@@ -904,15 +757,13 @@ watchEffect(() => {
 
 
   <!-- ==========================================
-       INVALID OPPORTUNITY
+       INVALID RESOURCE
   =========================================== -->
 
   <main
     v-else
     class="relative flex min-h-[70vh] items-center overflow-hidden bg-white px-5 py-20 text-center"
   >
-    <!-- Decoration -->
-
     <div
       class="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-yen-gold/15 blur-3xl"
     ></div>
@@ -934,20 +785,20 @@ watchEffect(() => {
       <p
         class="mt-4 font-display text-[10px] font-extrabold uppercase tracking-[0.2em] text-yen-red sm:text-xs"
       >
-        Opportunity Not Found
+        Resource Not Found
       </p>
 
       <h1
         class="mt-4 font-display text-3xl font-extrabold leading-tight text-black sm:text-4xl"
       >
-        We couldn't find this opportunity.
+        We couldn't find this resource.
       </h1>
 
       <p
         class="mx-auto mt-4 max-w-lg font-body text-sm leading-7 text-gray-600 sm:text-base"
       >
-        The opportunity may have moved, expired, been removed,
-        or the link may be incorrect.
+        The resource may have been removed, unpublished, or the
+        link may be incorrect.
       </p>
 
 
@@ -955,10 +806,10 @@ watchEffect(() => {
         class="mt-8 flex flex-col justify-center gap-3 sm:flex-row"
       >
         <RouterLink
-          :to="{ name: 'opportunities' }"
+          :to="{ name: 'resources' }"
           class="inline-flex items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition hover:bg-yen-red"
         >
-          Browse Opportunities
+          Browse Resources
 
           <span
             class="ml-3 text-yen-gold"

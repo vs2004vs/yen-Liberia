@@ -1,5 +1,8 @@
 <script setup>
-import { computed, ref } from "vue"
+import {
+  computed,
+  ref,
+} from "vue"
 
 import {
   entrepreneurs,
@@ -7,56 +10,151 @@ import {
   entrepreneurCounties,
 } from "@/data/entrepreneurs"
 
+
+/*
+|--------------------------------------------------------------------------
+| FILTER STATE
+|--------------------------------------------------------------------------
+*/
+
 const searchQuery = ref("")
 const selectedIndustry = ref("All")
 const selectedCounty = ref("All")
 const verifiedOnly = ref(false)
 
-const filteredEntrepreneurs = computed(() => {
-  const query = searchQuery.value
+
+/*
+|--------------------------------------------------------------------------
+| SAFE HELPERS
+|--------------------------------------------------------------------------
+*/
+
+const normalizeText = (value) => {
+  return String(value ?? "")
     .toLowerCase()
     .trim()
+}
 
-  return entrepreneurs.filter((entrepreneur) => {
-    const matchesIndustry =
-      selectedIndustry.value === "All" ||
-      entrepreneur.industry ===
-        selectedIndustry.value
 
-    const matchesCounty =
-      selectedCounty.value === "All" ||
-      entrepreneur.county === selectedCounty.value
+/*
+|--------------------------------------------------------------------------
+| FILTER OPTIONS
+|--------------------------------------------------------------------------
+|
+| Combine the configured values with whatever actually exists
+| in the entrepreneur data.
+|
+| This keeps the directory filters synchronized when new
+| industries or counties are added later.
+|
+*/
 
-    const matchesVerified =
-      !verifiedOnly.value ||
-      entrepreneur.verified
+const industries = computed(() => {
+  const configured =
+    Array.isArray(entrepreneurIndustries)
+      ? entrepreneurIndustries.filter(
+          (industry) =>
+            industry &&
+            industry !== "All",
+        )
+      : []
 
-    const matchesSearch =
-      !query ||
-      entrepreneur.name
-        .toLowerCase()
-        .includes(query) ||
-      entrepreneur.business
-        .toLowerCase()
-        .includes(query) ||
-      entrepreneur.industry
-        .toLowerCase()
-        .includes(query) ||
-      entrepreneur.county
-        .toLowerCase()
-        .includes(query) ||
-      entrepreneur.shortDescription
-        .toLowerCase()
-        .includes(query)
-
-    return (
-      matchesIndustry &&
-      matchesCounty &&
-      matchesVerified &&
-      matchesSearch
+  const fromProfiles = entrepreneurs
+    .map(
+      (entrepreneur) =>
+        entrepreneur.industry,
     )
-  })
+    .filter(Boolean)
+
+  return [
+    "All",
+    ...new Set([
+      ...configured,
+      ...fromProfiles,
+    ]),
+  ]
 })
+
+
+const counties = computed(() => {
+  const configured =
+    Array.isArray(entrepreneurCounties)
+      ? entrepreneurCounties.filter(
+          (county) =>
+            county &&
+            county !== "All",
+        )
+      : []
+
+  const fromProfiles = entrepreneurs
+    .map(
+      (entrepreneur) =>
+        entrepreneur.county,
+    )
+    .filter(Boolean)
+
+  return [
+    "All",
+    ...new Set([
+      ...configured,
+      ...fromProfiles,
+    ]),
+  ]
+})
+
+
+/*
+|--------------------------------------------------------------------------
+| FILTERED ENTREPRENEURS
+|--------------------------------------------------------------------------
+*/
+
+const filteredEntrepreneurs = computed(() => {
+  const query = normalizeText(
+    searchQuery.value,
+  )
+
+  return entrepreneurs.filter(
+    (entrepreneur) => {
+      const matchesIndustry =
+        selectedIndustry.value === "All" ||
+        entrepreneur.industry ===
+          selectedIndustry.value
+
+      const matchesCounty =
+        selectedCounty.value === "All" ||
+        entrepreneur.county ===
+          selectedCounty.value
+
+      const matchesVerified =
+        !verifiedOnly.value ||
+        Boolean(entrepreneur.verified)
+
+      const searchableContent = [
+        entrepreneur.name,
+        entrepreneur.business,
+        entrepreneur.industry,
+        entrepreneur.county,
+        entrepreneur.role,
+        entrepreneur.shortDescription,
+      ]
+        .map(normalizeText)
+        .join(" ")
+
+      const matchesSearch =
+        !query ||
+        searchableContent.includes(query)
+
+      return (
+        matchesIndustry &&
+        matchesCounty &&
+        matchesVerified &&
+        matchesSearch
+      )
+    },
+  )
+})
+
 
 const clearFilters = () => {
   searchQuery.value = ""
@@ -66,39 +164,49 @@ const clearFilters = () => {
 }
 </script>
 
+
 <template>
-  <main class="w-full">
+  <main class="w-full overflow-hidden">
 
     <!-- ====================================
          HERO
     ===================================== -->
 
     <section
-      class="relative isolate min-h-[560px] overflow-hidden"
+      class="relative isolate min-h-[540px] overflow-hidden sm:min-h-[560px] lg:min-h-[580px]"
     >
+      <!-- Background -->
+
       <img
         src="/images/hero/hero-2.jpg"
         alt="Entrepreneurs in Liberia"
-        class="absolute inset-0 h-full w-full object-cover"
+        class="absolute inset-0 h-full w-full object-cover object-center"
       />
 
+
+      <!-- Contrast -->
+
       <div
-        class="absolute inset-0 bg-linear-to-r from-black/85 via-black/55 to-black/10"
+        class="absolute inset-0 bg-linear-to-r from-black/90 via-black/65 to-black/25 sm:from-black/85 sm:via-black/55 sm:to-black/10"
       ></div>
 
       <div
-        class="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-black/20"
+        class="absolute inset-0 bg-linear-to-t from-black/55 via-transparent to-black/20"
       ></div>
 
+
+      <!-- Content -->
+
       <div
-        class="relative z-10 mx-auto flex min-h-[560px] max-w-7xl items-center px-5 py-20 lg:px-8"
+        class="relative z-10 mx-auto flex min-h-[540px] max-w-7xl items-center px-5 py-16 sm:min-h-[560px] sm:px-6 sm:py-20 lg:min-h-[580px] lg:px-8"
       >
-        <div class="max-w-4xl">
-
+        <div
+          class="w-full max-w-4xl"
+        >
           <!-- Breadcrumb -->
 
           <div
-            class="mb-8 flex items-center gap-3 font-display text-xs font-bold"
+            class="mb-6 flex flex-wrap items-center gap-3 font-display text-xs font-bold sm:mb-8"
           >
             <RouterLink
               :to="{ name: 'home' }"
@@ -107,23 +215,33 @@ const clearFilters = () => {
               Home
             </RouterLink>
 
-            <span class="text-white/25">
+            <span
+              class="text-white/25"
+            >
               /
             </span>
 
-            <span class="text-yen-gold">
+            <span
+              class="text-yen-gold"
+            >
               Entrepreneurs
             </span>
           </div>
 
+
+          <!-- Label -->
+
           <p
-            class="font-display text-xs font-extrabold uppercase tracking-[0.2em] text-yen-gold"
+            class="font-display text-[10px] font-extrabold uppercase tracking-[0.2em] text-yen-gold sm:text-xs"
           >
             YEN Entrepreneur Network
           </p>
 
+
+          <!-- Heading -->
+
           <h1
-            class="mt-5 max-w-4xl font-display text-5xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl"
+            class="mt-5 max-w-4xl font-display text-[40px] font-extrabold leading-[1.05] tracking-tight text-white min-[390px]:text-[44px] sm:text-6xl lg:text-7xl"
           >
             Discover the people
 
@@ -132,8 +250,11 @@ const clearFilters = () => {
             </span>
           </h1>
 
+
+          <!-- Description -->
+
           <p
-            class="mt-7 max-w-2xl font-body text-base leading-8 text-white/75 sm:text-lg"
+            class="mt-6 max-w-2xl font-body text-sm leading-7 text-white/80 sm:mt-7 sm:text-lg sm:leading-8"
           >
             Explore entrepreneurs, founders and youth-led
             businesses creating products, services, jobs and
@@ -142,8 +263,11 @@ const clearFilters = () => {
         </div>
       </div>
 
+
+      <!-- Brand accent -->
+
       <div
-        class="absolute bottom-0 left-0 h-1 w-full bg-linear-to-r from-yen-red via-yen-gold to-yen-red"
+        class="absolute bottom-0 left-0 z-20 h-1 w-full bg-linear-to-r from-yen-red via-yen-gold to-yen-red"
       ></div>
     </section>
 
@@ -154,17 +278,19 @@ const clearFilters = () => {
 
     <section class="bg-white">
       <div
-        class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:py-24"
+        class="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14 lg:px-8 lg:py-24"
       >
+        <!-- Heading -->
+
         <div>
           <p
-            class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-red"
+            class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
           >
             Business Directory
           </p>
 
           <h2
-            class="mt-4 font-display text-4xl font-extrabold leading-tight text-black sm:text-5xl"
+            class="mt-4 font-display text-3xl font-extrabold leading-tight text-black min-[390px]:text-4xl sm:text-5xl"
           >
             More than a network.
 
@@ -174,9 +300,12 @@ const clearFilters = () => {
           </h2>
         </div>
 
+
+        <!-- Description -->
+
         <div>
           <p
-            class="font-body text-base leading-8 text-gray-600"
+            class="font-body text-sm leading-8 text-gray-600 sm:text-base"
           >
             The YEN-Liberia Entrepreneur Directory is designed
             to increase visibility for youth-led businesses and
@@ -186,7 +315,7 @@ const clearFilters = () => {
           </p>
 
           <p
-            class="mt-5 font-body text-base leading-8 text-gray-600"
+            class="mt-5 font-body text-sm leading-8 text-gray-600 sm:text-base"
           >
             As the platform develops, approved YEN members will
             be able to maintain business profiles while YEN
@@ -204,20 +333,19 @@ const clearFilters = () => {
 
     <section class="bg-[#f7f7f5]">
       <div
-        class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28"
+        class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-28"
       >
-
         <!-- Heading -->
 
         <div>
           <p
-            class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-red"
+            class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
           >
             Explore the Network
           </p>
 
           <h2
-            class="mt-3 font-display text-3xl font-extrabold text-black sm:text-4xl"
+            class="mt-3 font-display text-3xl font-extrabold leading-tight text-black sm:text-4xl"
           >
             Find an entrepreneur
           </h2>
@@ -229,21 +357,21 @@ const clearFilters = () => {
         =================================== -->
 
         <div
-          class="mt-10 rounded-[1.8rem] bg-black p-5 sm:p-7"
+          class="mt-9 rounded-[1.5rem] bg-black p-4 sm:mt-10 sm:rounded-[1.8rem] sm:p-7"
         >
           <div
             class="grid gap-4 lg:grid-cols-[1.4fr_0.75fr_0.75fr]"
           >
-
             <!-- Search -->
 
             <div class="relative">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40"
+                class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40 sm:left-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -253,71 +381,102 @@ const clearFilters = () => {
                 />
               </svg>
 
+
+              <label
+                for="entrepreneur-search"
+                class="sr-only"
+              >
+                Search entrepreneur directory
+              </label>
+
+
               <input
+                id="entrepreneur-search"
                 v-model="searchQuery"
                 type="search"
+                autocomplete="off"
                 placeholder="Search entrepreneur, business or industry..."
-                class="w-full rounded-xl border border-white/15 bg-white/10 py-4 pl-14 pr-5 font-display text-sm text-white outline-none placeholder:text-white/35 focus:border-yen-gold"
+                class="w-full rounded-xl border border-white/15 bg-white/10 py-4 pl-12 pr-4 font-display text-sm text-white outline-none transition placeholder:text-white/35 focus:border-yen-gold focus:bg-white/15 sm:pl-14 sm:pr-5"
               />
             </div>
 
 
             <!-- Industry -->
 
-            <select
-              v-model="selectedIndustry"
-              class="rounded-xl border border-white/15 bg-white/10 px-5 py-4 font-display text-sm font-semibold text-white outline-none focus:border-yen-gold"
-            >
-              <option
-                v-for="industry in entrepreneurIndustries"
-                :key="industry"
-                :value="industry"
-                class="text-black"
+            <div>
+              <label
+                for="entrepreneur-industry"
+                class="sr-only"
               >
-                {{
-                  industry === "All"
-                    ? "All Industries"
-                    : industry
-                }}
-              </option>
-            </select>
+                Filter entrepreneurs by industry
+              </label>
+
+              <select
+                id="entrepreneur-industry"
+                v-model="selectedIndustry"
+                class="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-4 font-display text-sm font-semibold text-white outline-none transition focus:border-yen-gold focus:bg-white/15 sm:px-5"
+              >
+                <option
+                  v-for="industry in industries"
+                  :key="industry"
+                  :value="industry"
+                  class="text-black"
+                >
+                  {{
+                    industry === "All"
+                      ? "All Industries"
+                      : industry
+                  }}
+                </option>
+              </select>
+            </div>
 
 
             <!-- County -->
 
-            <select
-              v-model="selectedCounty"
-              class="rounded-xl border border-white/15 bg-white/10 px-5 py-4 font-display text-sm font-semibold text-white outline-none focus:border-yen-gold"
-            >
-              <option
-                v-for="county in entrepreneurCounties"
-                :key="county"
-                :value="county"
-                class="text-black"
+            <div>
+              <label
+                for="entrepreneur-county"
+                class="sr-only"
               >
-                {{
-                  county === "All"
-                    ? "All Counties"
-                    : county
-                }}
-              </option>
-            </select>
+                Filter entrepreneurs by county
+              </label>
+
+              <select
+                id="entrepreneur-county"
+                v-model="selectedCounty"
+                class="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-4 font-display text-sm font-semibold text-white outline-none transition focus:border-yen-gold focus:bg-white/15 sm:px-5"
+              >
+                <option
+                  v-for="county in counties"
+                  :key="county"
+                  :value="county"
+                  class="text-black"
+                >
+                  {{
+                    county === "All"
+                      ? "All Counties"
+                      : county
+                  }}
+                </option>
+              </select>
+            </div>
           </div>
 
 
           <!-- Verified toggle -->
 
           <label
-            class="mt-5 inline-flex cursor-pointer items-center gap-3"
+            class="mt-5 inline-flex max-w-full cursor-pointer items-start gap-3"
           >
             <input
               v-model="verifiedOnly"
               type="checkbox"
-              class="h-4 w-4 accent-[#fdd131]"
+              class="mt-0.5 h-4 w-4 shrink-0 accent-[#fdd131]"
             />
 
             <span
-              class="font-display text-xs font-semibold text-white/65"
+              class="font-display text-[11px] font-semibold leading-5 text-white/65 sm:text-xs"
             >
               Show verified YEN profiles only
             </span>
@@ -330,10 +489,11 @@ const clearFilters = () => {
         =================================== -->
 
         <div
-          class="mt-8 flex items-center justify-between gap-5"
+          class="mt-7 flex flex-wrap items-center justify-between gap-4 sm:mt-8"
         >
           <p
-            class="font-display text-sm font-semibold text-gray-500"
+            class="font-display text-xs font-semibold text-gray-500 sm:text-sm"
+            aria-live="polite"
           >
             Showing
 
@@ -341,8 +501,13 @@ const clearFilters = () => {
               {{ filteredEntrepreneurs.length }}
             </span>
 
-            entrepreneurs
+            {{
+              filteredEntrepreneurs.length === 1
+                ? "entrepreneur"
+                : "entrepreneurs"
+            }}
           </p>
+
 
           <button
             v-if="
@@ -352,7 +517,7 @@ const clearFilters = () => {
               verifiedOnly
             "
             type="button"
-            class="font-display text-sm font-bold text-yen-red transition hover:text-black"
+            class="font-display text-xs font-bold text-yen-red transition hover:text-black sm:text-sm"
             @click="clearFilters"
           >
             Clear filters
@@ -366,27 +531,29 @@ const clearFilters = () => {
 
         <div
           v-if="filteredEntrepreneurs.length"
-          class="mt-7 grid gap-7 sm:grid-cols-2 lg:grid-cols-3"
+          class="mt-7 grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
         >
           <article
             v-for="entrepreneur in filteredEntrepreneurs"
             :key="entrepreneur.id"
-            class="group overflow-hidden rounded-[1.8rem] bg-white transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
+            class="group flex h-full flex-col overflow-hidden rounded-[1.6rem] bg-white transition duration-300 hover:-translate-y-2 hover:shadow-2xl sm:rounded-[1.8rem]"
           >
-
-            <!-- Image -->
+            <!-- =================================
+                 IMAGE
+            ================================== -->
 
             <div
-              class="relative h-[360px] overflow-hidden bg-gray-100"
+              class="relative h-[320px] overflow-hidden bg-gray-100 sm:h-[350px] xl:h-[360px]"
             >
               <img
                 :src="entrepreneur.image"
                 :alt="entrepreneur.name"
-                class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                loading="lazy"
+                class="h-full w-full object-cover object-center transition duration-700 group-hover:scale-105"
               />
 
               <div
-                class="absolute inset-0 bg-linear-to-t from-black/85 via-black/10 to-transparent"
+                class="absolute inset-0 bg-linear-to-t from-black/90 via-black/15 to-transparent"
               ></div>
 
 
@@ -394,7 +561,7 @@ const clearFilters = () => {
 
               <span
                 v-if="entrepreneur.featured"
-                class="absolute left-5 top-5 rounded-full bg-yen-gold px-4 py-2 font-display text-[9px] font-extrabold uppercase tracking-wider text-black"
+                class="absolute left-4 top-4 rounded-full bg-yen-gold px-3 py-2 font-display text-[9px] font-extrabold uppercase tracking-wider text-black sm:left-5 sm:top-5 sm:px-4"
               >
                 Featured
               </span>
@@ -404,14 +571,16 @@ const clearFilters = () => {
 
               <div
                 v-if="entrepreneur.verified"
-                class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-xl"
+                class="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-xl sm:right-5 sm:top-5"
                 title="Verified YEN profile"
+                aria-label="Verified YEN profile"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-5 w-5 text-yen-red"
                   viewBox="0 0 24 24"
                   fill="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     fill-rule="evenodd"
@@ -422,25 +591,25 @@ const clearFilters = () => {
               </div>
 
 
-              <!-- Name -->
+              <!-- Name overlay -->
 
               <div
-                class="absolute bottom-0 left-0 right-0 p-6"
+                class="absolute bottom-0 left-0 right-0 p-5 sm:p-6"
               >
                 <p
-                  class="font-display text-xs font-bold text-yen-gold"
+                  class="font-display text-[11px] font-bold leading-5 text-yen-gold sm:text-xs"
                 >
                   {{ entrepreneur.role }}
                 </p>
 
                 <h3
-                  class="mt-1 font-display text-2xl font-extrabold text-white"
+                  class="mt-1 font-display text-2xl font-extrabold leading-tight text-white"
                 >
                   {{ entrepreneur.name }}
                 </h3>
 
                 <p
-                  class="mt-1 font-display text-sm font-semibold text-white/70"
+                  class="mt-1 font-display text-xs font-semibold leading-5 text-white/70 sm:text-sm"
                 >
                   {{ entrepreneur.business }}
                 </p>
@@ -448,20 +617,27 @@ const clearFilters = () => {
             </div>
 
 
-            <!-- Body -->
+            <!-- =================================
+                 BODY
+            ================================== -->
 
-            <div class="p-7">
-
+            <div
+              class="flex flex-1 flex-col p-6 sm:p-7"
+            >
               <!-- Meta -->
 
-              <div class="flex flex-wrap gap-2">
+              <div
+                class="flex flex-wrap gap-2"
+              >
                 <span
+                  v-if="entrepreneur.industry"
                   class="rounded-full bg-black px-3 py-2 font-display text-[9px] font-bold uppercase tracking-wider text-white"
                 >
                   {{ entrepreneur.industry }}
                 </span>
 
                 <span
+                  v-if="entrepreneur.county"
                   class="rounded-full bg-yen-gold/30 px-3 py-2 font-display text-[9px] font-bold uppercase tracking-wider text-black"
                 >
                   {{ entrepreneur.county }}
@@ -481,37 +657,46 @@ const clearFilters = () => {
               <!-- Footer -->
 
               <div
-                class="mt-7 flex items-center justify-between border-t border-gray-100 pt-6"
+                class="mt-auto pt-7"
               >
-                <span
-                  class="font-display text-[10px] font-bold uppercase tracking-wider text-gray-400"
+                <div
+                  class="flex items-center justify-between gap-4 border-t border-gray-100 pt-6"
                 >
-                  {{ entrepreneur.memberStatus }}
-                </span>
+                  <span
+                    class="min-w-0 font-display text-[9px] font-bold uppercase leading-5 tracking-wider text-gray-400 sm:text-[10px]"
+                  >
+                    {{ entrepreneur.memberStatus }}
+                  </span>
 
-                <RouterLink
-                  :to="{
-                    name: 'entrepreneur-detail',
-                    params: {
-                      slug: entrepreneur.slug,
-                    },
-                  }"
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-black text-yen-gold transition duration-300 group-hover:bg-yen-red group-hover:text-white"
-                  :aria-label="`View ${entrepreneur.name}`"
-                >
-                  →
-                </RouterLink>
+
+                  <RouterLink
+                    :to="{
+                      name: 'entrepreneur-detail',
+                      params: {
+                        slug: entrepreneur.slug,
+                      },
+                    }"
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-black text-yen-gold transition duration-300 group-hover:bg-yen-red group-hover:text-white"
+                    :aria-label="
+                      `View ${entrepreneur.name}`
+                    "
+                  >
+                    →
+                  </RouterLink>
+                </div>
               </div>
             </div>
           </article>
         </div>
 
 
-        <!-- Empty -->
+        <!-- ==================================
+             EMPTY STATE
+        =================================== -->
 
         <div
           v-else
-          class="mt-8 rounded-[1.7rem] border border-dashed border-gray-300 bg-white px-6 py-16 text-center"
+          class="mt-8 rounded-[1.6rem] border border-dashed border-gray-300 bg-white px-5 py-14 text-center sm:rounded-[1.7rem] sm:px-6 sm:py-16"
         >
           <h3
             class="font-display text-xl font-bold text-black"
@@ -520,14 +705,14 @@ const clearFilters = () => {
           </h3>
 
           <p
-            class="mt-3 font-body text-sm text-gray-500"
+            class="mx-auto mt-3 max-w-md font-body text-sm leading-7 text-gray-500"
           >
             Try another business name, industry or county.
           </p>
 
           <button
             type="button"
-            class="mt-5 font-display text-sm font-bold text-yen-red"
+            class="mt-5 font-display text-sm font-bold text-yen-red transition hover:text-black"
             @click="clearFilters"
           >
             View all entrepreneurs
@@ -543,13 +728,15 @@ const clearFilters = () => {
 
     <section class="bg-white">
       <div
-        class="mx-auto grid max-w-7xl gap-7 px-5 py-20 md:grid-cols-3 lg:px-8 lg:py-24"
+        class="mx-auto grid max-w-7xl gap-5 px-5 py-20 sm:px-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7 lg:px-8 lg:py-24"
       >
+        <!-- Card 1 -->
+
         <article
-          class="rounded-[1.6rem] bg-[#f7f7f5] p-8"
+          class="rounded-[1.5rem] bg-[#f7f7f5] p-7 sm:rounded-[1.6rem] sm:p-8"
         >
           <span
-            class="font-display text-4xl font-extrabold text-yen-gold"
+            class="font-display text-3xl font-extrabold text-yen-gold sm:text-4xl"
           >
             01
           </span>
@@ -568,11 +755,14 @@ const clearFilters = () => {
           </p>
         </article>
 
+
+        <!-- Card 2 -->
+
         <article
-          class="rounded-[1.6rem] bg-black p-8"
+          class="rounded-[1.5rem] bg-black p-7 sm:rounded-[1.6rem] sm:p-8"
         >
           <span
-            class="font-display text-4xl font-extrabold text-yen-gold"
+            class="font-display text-3xl font-extrabold text-yen-gold sm:text-4xl"
           >
             02
           </span>
@@ -591,11 +781,14 @@ const clearFilters = () => {
           </p>
         </article>
 
+
+        <!-- Card 3 -->
+
         <article
-          class="rounded-[1.6rem] bg-yen-gold p-8"
+          class="rounded-[1.5rem] bg-yen-gold p-7 sm:col-span-2 sm:rounded-[1.6rem] sm:p-8 lg:col-span-1"
         >
           <span
-            class="font-display text-4xl font-extrabold text-yen-red"
+            class="font-display text-3xl font-extrabold text-yen-red sm:text-4xl"
           >
             03
           </span>
@@ -623,27 +816,32 @@ const clearFilters = () => {
 
     <section class="bg-white">
       <div
-        class="mx-auto max-w-7xl px-5 pb-24 lg:px-8"
+        class="mx-auto max-w-7xl px-5 pb-20 sm:px-6 sm:pb-24 lg:px-8"
       >
         <div
-          class="relative overflow-hidden rounded-[2rem] bg-black p-8 sm:p-10 lg:p-14"
+          class="relative overflow-hidden rounded-[1.7rem] bg-black p-7 sm:rounded-[2rem] sm:p-10 lg:p-14"
         >
+          <!-- Decoration -->
+
           <div
-            class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-yen-gold/10"
+            class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-yen-gold/10"
           ></div>
+
 
           <div
             class="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center"
           >
+            <!-- Copy -->
+
             <div class="max-w-3xl">
               <p
-                class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-gold"
+                class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
               >
                 Join the Network
               </p>
 
               <h2
-                class="mt-4 font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl"
+                class="mt-4 font-display text-2xl font-extrabold leading-tight text-white sm:text-4xl"
               >
                 Want your business represented in the
 
@@ -662,12 +860,12 @@ const clearFilters = () => {
               </p>
             </div>
 
+
+            <!-- CTA -->
+
             <RouterLink
-              :to="{
-                name: 'home',
-                hash: '#join',
-              }"
-              class="inline-flex items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition hover:-translate-y-1 hover:bg-white"
+              :to="{ name: 'join' }"
+              class="inline-flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white sm:w-auto sm:min-w-[220px]"
             >
               Join YEN-Liberia
 

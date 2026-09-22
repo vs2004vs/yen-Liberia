@@ -68,26 +68,27 @@ const journey = [
 </script>
 
 <template>
-  <main class="w-full">
+  <main class="w-full overflow-hidden">
+
     <!-- ========================================
          ABOUT HERO
     ========================================= -->
 
     <section
-      class="relative isolate min-h-[620px] overflow-hidden"
+      class="relative isolate min-h-[560px] overflow-hidden sm:min-h-[600px] lg:min-h-[620px]"
     >
       <!-- Background image -->
 
       <img
         src="/images/hero/hero-2.jpg"
         alt="Youth entrepreneurs participating in a YEN-Liberia activity"
-        class="absolute inset-0 h-full w-full object-cover"
+        class="absolute inset-0 h-full w-full object-cover object-center"
       />
 
       <!-- Contrast layers -->
 
       <div
-        class="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-black/15"
+        class="absolute inset-0 bg-linear-to-r from-black/85 via-black/60 to-black/25 sm:from-black/80 sm:via-black/50 sm:to-black/15"
       ></div>
 
       <div
@@ -97,13 +98,14 @@ const journey = [
       <!-- Content -->
 
       <div
-        class="relative z-10 mx-auto flex min-h-[620px] max-w-7xl items-center px-5 py-20 lg:px-8"
+        class="relative z-10 mx-auto flex min-h-[560px] max-w-7xl items-center px-5 py-16 sm:min-h-[600px] sm:px-6 sm:py-20 lg:min-h-[620px] lg:px-8"
       >
-        <div class="max-w-4xl">
+        <div class="w-full max-w-4xl">
+
           <!-- Breadcrumb -->
 
           <div
-            class="mb-8 flex items-center gap-3 font-display text-xs font-bold"
+            class="mb-6 flex flex-wrap items-center gap-3 font-display text-xs font-bold sm:mb-8"
           >
             <RouterLink
               :to="{ name: 'home' }"
@@ -122,13 +124,13 @@ const journey = [
           </div>
 
           <p
-            class="font-display text-xs font-extrabold uppercase tracking-[0.2em] text-yen-gold"
+            class="font-display text-[10px] font-extrabold uppercase tracking-[0.2em] text-yen-gold sm:text-xs"
           >
             Who We Are
           </p>
 
           <h1
-            class="mt-5 max-w-4xl font-display text-5xl font-extrabold leading-[1.06] tracking-tight text-white sm:text-6xl lg:text-7xl"
+            class="mt-5 max-w-4xl font-display text-[40px] font-extrabold leading-[1.06] tracking-tight text-white min-[390px]:text-[44px] sm:text-6xl lg:text-7xl"
           >
             Building the ecosystem where
 
@@ -138,7 +140,7 @@ const journey = [
           </h1>
 
           <p
-            class="mt-7 max-w-2xl font-body text-base leading-8 text-white/75 sm:text-lg"
+            class="mt-6 max-w-2xl font-body text-sm leading-7 text-white/80 sm:mt-7 sm:text-lg sm:leading-8"
           >
             Youth Entrepreneurs Network–Liberia inspires, supports
             and connects young entrepreneurs while strengthening
@@ -162,7 +164,7 @@ const journey = [
 
     <section class="bg-white">
       <div
-        class="mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 lg:grid-cols-2 lg:px-8 lg:py-28"
+        class="mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8 lg:py-28"
       >
         <!-- Content -->
 
@@ -175,14 +177,14 @@ const journey = [
             ></span>
 
             <span
-              class="font-display text-sm font-bold uppercase tracking-[0.18em] text-yen-red"
+              class="font-display text-xs font-bold uppercase tracking-[0.18em] text-yen-red sm:text-sm"
             >
               Our Story
             </span>
           </div>
 
           <h2
-            class="font-display text-4xl font-extrabold leading-tight text-black sm:text-5xl"
+            class="font-display text-3xl font-extrabold leading-tight text-black min-[390px]:text-4xl sm:text-5xl"
           >
             Entrepreneurship can transform
 
@@ -192,7 +194,7 @@ const journey = [
           </h2>
 
           <p
-            class="mt-7 font-body text-base leading-8 text-gray-600"
+            class="mt-6 font-body text-sm leading-8 text-gray-600 sm:mt-7 sm:text-base"
           >
             Youth Entrepreneurs Network–Liberia is a youth-led
             entrepreneurship organization committed to empowering
@@ -201,7 +203,7 @@ const journey = [
           </p>
 
           <p
-            class="mt-5 font-body text-base leading-8 text-gray-600"
+            class="mt-5 font-body text-sm leading-8 text-gray-600 sm:text-base"
           >
             Our work brings entrepreneurs together with practical
             learning, mentorship, networks, institutions and
@@ -211,7 +213,7 @@ const journey = [
           </p>
 
           <p
-            class="mt-5 font-body text-base leading-8 text-gray-600"
+            class="mt-5 font-body text-sm leading-8 text-gray-600 sm:text-base"
           >
             We believe Liberia's young people should not only
             participate in the economy. They should help build,
@@ -219,28 +221,36 @@ const journey = [
           </p>
         </div>
 
+
         <!-- Image composition -->
 
-        <div
-          class="relative"
-        >
+        <div class="relative">
+          <!-- Accent -->
+
           <div
-            class="overflow-hidden rounded-[2rem]"
+            class="absolute -left-4 -top-4 -z-10 h-24 w-24 rounded-3xl bg-yen-gold sm:-left-5 sm:-top-5 sm:h-28 sm:w-28"
+          ></div>
+
+          <!-- Image -->
+
+          <div
+            class="overflow-hidden rounded-[1.6rem] sm:rounded-[2rem]"
           >
             <img
               src="/images/hero/hero-3.jpg"
               alt="Young entrepreneurs in Liberia"
-              class="h-[570px] w-full object-cover"
+              class="h-[400px] w-full object-cover object-center sm:h-[500px] lg:h-[570px]"
             />
           </div>
 
-          <!-- Floating card -->
+
+          <!-- Floating-style impact card -->
 
           <div
-            class="absolute -bottom-8 left-5 right-5 rounded-[1.5rem] bg-black p-7 shadow-2xl sm:left-auto sm:right-8 sm:max-w-[300px]"
+            class="relative z-10 mx-4 -mt-12 rounded-[1.4rem] bg-black p-6 shadow-2xl sm:ml-auto sm:mr-8 sm:max-w-[300px] sm:p-7"
           >
             <p
-              class="font-display text-4xl font-extrabold text-yen-gold"
+              class="font-display text-3xl font-extrabold text-yen-gold sm:text-4xl"
             >
               300+
             </p>
@@ -256,12 +266,6 @@ const journey = [
               class="mt-5 h-[3px] w-12 bg-yen-red"
             ></div>
           </div>
-
-          <!-- Accent -->
-
-          <div
-            class="absolute -left-5 -top-5 -z-10 h-28 w-28 rounded-3xl bg-yen-gold"
-          ></div>
         </div>
       </div>
     </section>
@@ -273,58 +277,59 @@ const journey = [
 
     <section class="bg-[#f7f7f5]">
       <div
-        class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24"
+        class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
         <div
           class="mx-auto max-w-3xl text-center"
         >
           <p
-            class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-red"
+            class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
           >
             Our Direction
           </p>
 
           <h2
-            class="mt-4 font-display text-4xl font-extrabold text-black sm:text-5xl"
+            class="mt-4 font-display text-3xl font-extrabold leading-tight text-black min-[390px]:text-4xl sm:text-5xl"
           >
             Purpose that guides our work.
           </h2>
         </div>
 
+
         <div
-          class="mt-14 grid gap-7 lg:grid-cols-2"
+          class="mt-10 grid gap-6 sm:mt-14 lg:grid-cols-2 lg:gap-7"
         >
           <!-- Mission -->
 
           <article
-            class="relative overflow-hidden rounded-[2rem] bg-black p-8 sm:p-10 lg:p-12"
+            class="relative overflow-hidden rounded-[1.7rem] bg-black p-7 sm:rounded-[2rem] sm:p-10 lg:p-12"
           >
             <div
-              class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-yen-gold/10"
+              class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-yen-gold/10"
             ></div>
 
             <div class="relative">
               <div
-                class="flex h-14 w-14 items-center justify-center rounded-2xl bg-yen-gold font-display text-xl font-extrabold text-black"
+                class="flex h-12 w-12 items-center justify-center rounded-2xl bg-yen-gold font-display text-lg font-extrabold text-black sm:h-14 sm:w-14 sm:text-xl"
               >
                 M
               </div>
 
               <p
-                class="mt-8 font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-gold"
+                class="mt-7 font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:mt-8 sm:text-xs"
               >
                 Our Mission
               </p>
 
               <h3
-                class="mt-4 font-display text-3xl font-bold leading-tight text-white"
+                class="mt-4 font-display text-2xl font-bold leading-tight text-white sm:text-3xl"
               >
                 Inspire, support and connect young Liberian
                 entrepreneurs.
               </h3>
 
               <p
-                class="mt-5 font-body text-sm leading-8 text-white/65 sm:text-base"
+                class="mt-5 font-body text-sm leading-7 text-white/65 sm:text-base sm:leading-8"
               >
                 We work to equip entrepreneurs with practical
                 skills, meaningful connections, mentorship and
@@ -334,37 +339,38 @@ const journey = [
             </div>
           </article>
 
+
           <!-- Vision -->
 
           <article
-            class="relative overflow-hidden rounded-[2rem] bg-yen-gold p-8 sm:p-10 lg:p-12"
+            class="relative overflow-hidden rounded-[1.7rem] bg-yen-gold p-7 sm:rounded-[2rem] sm:p-10 lg:p-12"
           >
             <div
-              class="absolute -bottom-20 -right-20 h-64 w-64 rounded-full border-[40px] border-black/5"
+              class="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full border-[40px] border-black/5"
             ></div>
 
             <div class="relative">
               <div
-                class="flex h-14 w-14 items-center justify-center rounded-2xl bg-black font-display text-xl font-extrabold text-yen-gold"
+                class="flex h-12 w-12 items-center justify-center rounded-2xl bg-black font-display text-lg font-extrabold text-yen-gold sm:h-14 sm:w-14 sm:text-xl"
               >
                 V
               </div>
 
               <p
-                class="mt-8 font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-red"
+                class="mt-7 font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:mt-8 sm:text-xs"
               >
                 Our Vision
               </p>
 
               <h3
-                class="mt-4 font-display text-3xl font-bold leading-tight text-black"
+                class="mt-4 font-display text-2xl font-bold leading-tight text-black sm:text-3xl"
               >
                 A thriving Liberia powered by innovative young
                 entrepreneurs.
               </h3>
 
               <p
-                class="mt-5 font-body text-sm leading-8 text-black/65 sm:text-base"
+                class="mt-5 font-body text-sm leading-7 text-black/65 sm:text-base sm:leading-8"
               >
                 We envision an inclusive entrepreneurship ecosystem
                 where young people can transform ideas into
@@ -384,22 +390,22 @@ const journey = [
 
     <section class="bg-white">
       <div
-        class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28"
+        class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-28"
       >
         <div
-          class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]"
+          class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14"
         >
           <!-- Heading -->
 
           <div>
             <p
-              class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-red"
+              class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
             >
               Our Approach
             </p>
 
             <h2
-              class="mt-4 font-display text-4xl font-extrabold leading-tight text-black sm:text-5xl"
+              class="mt-4 font-display text-3xl font-extrabold leading-tight text-black min-[390px]:text-4xl sm:text-5xl"
             >
               From ideas to
 
@@ -417,6 +423,7 @@ const journey = [
             </p>
           </div>
 
+
           <!-- Pillars -->
 
           <div
@@ -425,7 +432,7 @@ const journey = [
             <article
               v-for="pillar in pillars"
               :key="pillar.number"
-              class="group rounded-[1.6rem] border border-gray-200 p-7 transition duration-300 hover:-translate-y-1 hover:border-yen-gold hover:shadow-xl"
+              class="group rounded-[1.5rem] border border-gray-200 p-6 transition duration-300 hover:-translate-y-1 hover:border-yen-gold hover:shadow-xl sm:rounded-[1.6rem] sm:p-7"
             >
               <span
                 class="font-display text-3xl font-extrabold text-yen-gold"
@@ -434,7 +441,7 @@ const journey = [
               </span>
 
               <h3
-                class="mt-5 font-display text-2xl font-bold text-black"
+                class="mt-5 font-display text-xl font-bold text-black sm:text-2xl"
               >
                 {{ pillar.title }}
               </h3>
@@ -461,19 +468,17 @@ const journey = [
 
     <section class="bg-black">
       <div
-        class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24"
+        class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
-        <div
-          class="max-w-3xl"
-        >
+        <div class="max-w-3xl">
           <p
-            class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-gold"
+            class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
           >
             Our Journey
           </p>
 
           <h2
-            class="mt-4 font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl"
+            class="mt-4 font-display text-3xl font-extrabold leading-tight text-white min-[390px]:text-4xl sm:text-5xl"
           >
             Growing through action,
 
@@ -483,28 +488,29 @@ const journey = [
           </h2>
         </div>
 
+
         <div
-          class="mt-14 grid gap-5 lg:grid-cols-3"
+          class="mt-10 grid gap-5 sm:mt-14 md:grid-cols-2 lg:grid-cols-3"
         >
           <article
             v-for="item in journey"
             :key="`${item.year}-${item.title}`"
-            class="rounded-[1.6rem] border border-white/10 bg-white/[0.04] p-7 transition duration-300 hover:border-yen-gold/50 hover:bg-white/[0.07]"
+            class="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-6 transition duration-300 hover:border-yen-gold/50 hover:bg-white/[0.07] sm:rounded-[1.6rem] sm:p-7"
           >
             <p
-              class="font-display text-4xl font-extrabold text-yen-gold"
+              class="font-display text-3xl font-extrabold text-yen-gold sm:text-4xl"
             >
               {{ item.year }}
             </p>
 
             <h3
-              class="mt-6 font-display text-xl font-bold text-white"
+              class="mt-5 font-display text-xl font-bold text-white sm:mt-6"
             >
               {{ item.title }}
             </h3>
 
             <p
-              class="mt-4 font-body text-sm leading-7 text-white/55"
+              class="mt-4 font-body text-sm leading-7 text-white/60"
             >
               {{ item.description }}
             </p>
@@ -524,23 +530,24 @@ const journey = [
 
     <section class="bg-yen-gold">
       <div
-        class="mx-auto max-w-7xl px-5 py-16 lg:px-8"
+        class="mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-16 lg:px-8"
       >
         <div
-          class="grid gap-9 text-center sm:grid-cols-2 lg:grid-cols-4"
+          class="grid grid-cols-2 gap-x-5 gap-y-10 text-center lg:grid-cols-4 lg:gap-9"
         >
           <div
             v-for="stat in impactStats"
             :key="stat.label"
+            class="min-w-0"
           >
             <p
-              class="font-display text-4xl font-extrabold text-black sm:text-5xl"
+              class="font-display text-3xl font-extrabold text-black sm:text-5xl"
             >
               {{ stat.value }}
             </p>
 
             <p
-              class="mx-auto mt-3 max-w-[220px] font-display text-xs font-bold leading-6 text-black/65"
+              class="mx-auto mt-3 max-w-[220px] font-display text-[10px] font-bold leading-5 text-black/65 sm:text-xs sm:leading-6"
             >
               {{ stat.label }}
             </p>
@@ -556,31 +563,32 @@ const journey = [
 
     <section class="bg-white">
       <div
-        class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24"
+        class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
         <div
-          class="relative overflow-hidden rounded-[2rem] bg-black px-8 py-12 sm:px-10 lg:px-14 lg:py-16"
+          class="relative overflow-hidden rounded-[1.7rem] bg-black px-6 py-10 sm:rounded-[2rem] sm:px-10 sm:py-12 lg:px-14 lg:py-16"
         >
           <div
-            class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-yen-gold/10 blur-2xl"
+            class="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-yen-gold/10 blur-2xl"
           ></div>
 
           <div
-            class="absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-yen-red/10 blur-2xl"
+            class="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-yen-red/10 blur-2xl"
           ></div>
 
+
           <div
-            class="relative grid gap-9 lg:grid-cols-[1fr_auto] lg:items-center"
+            class="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-9"
           >
             <div class="max-w-3xl">
               <p
-                class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-gold"
+                class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
               >
                 Join the Movement
               </p>
 
               <h2
-                class="mt-4 font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl"
+                class="mt-4 font-display text-2xl font-extrabold leading-tight text-white sm:text-4xl"
               >
                 Liberia's entrepreneurship future is being built
 
@@ -598,15 +606,13 @@ const journey = [
               </p>
             </div>
 
+
             <div
-              class="flex flex-col gap-3 sm:flex-row lg:flex-col"
+              class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row lg:flex-col"
             >
               <RouterLink
-                :to="{
-                  name: 'home',
-                  hash: '#join',
-                }"
-                class="inline-flex min-w-[210px] items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
+                :to="{ name: 'join' }"
+                class="inline-flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white sm:w-auto sm:min-w-[210px]"
               >
                 Join YEN-Liberia
 
@@ -615,12 +621,15 @@ const journey = [
                 </span>
               </RouterLink>
 
+
+              <!-- FIXED:
+                   Was still going to the old homepage anchor.
+                   Now uses the dedicated Partners route.
+              -->
+
               <RouterLink
-                :to="{
-                  name: 'home',
-                  hash: '#partner-with-us',
-                }"
-                class="inline-flex min-w-[210px] items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
+                :to="{ name: 'partners' }"
+                class="inline-flex w-full items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition duration-300 hover:border-yen-gold hover:text-yen-gold sm:w-auto sm:min-w-[210px]"
               >
                 Partner With Us
               </RouterLink>
@@ -630,4 +639,4 @@ const journey = [
       </div>
     </section>
   </main>
-</template>
+</template> 

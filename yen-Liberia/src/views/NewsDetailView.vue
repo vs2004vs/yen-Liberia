@@ -1,5 +1,9 @@
 <script setup>
-import { computed } from "vue"
+import {
+  computed,
+  watchEffect,
+} from "vue"
+
 import { useRoute } from "vue-router"
 
 import {
@@ -7,97 +11,208 @@ import {
   getRelatedNews,
 } from "@/data/news"
 
+
+/*
+|--------------------------------------------------------------------------
+| ROUTE
+|--------------------------------------------------------------------------
+*/
+
 const route = useRoute()
 
-const article = computed(() =>
-  getNewsArticleBySlug(route.params.slug),
-)
+
+/*
+|--------------------------------------------------------------------------
+| CURRENT ARTICLE
+|--------------------------------------------------------------------------
+*/
+
+const article = computed(() => {
+  const slug = String(
+    route.params.slug ?? "",
+  )
+
+  return getNewsArticleBySlug(slug)
+})
+
+
+/*
+|--------------------------------------------------------------------------
+| SAFE ARTICLE DATA
+|--------------------------------------------------------------------------
+*/
+
+const contentParagraphs = computed(() => {
+  return Array.isArray(
+    article.value?.content,
+  )
+    ? article.value.content
+    : []
+})
+
+
+const highlights = computed(() => {
+  return Array.isArray(
+    article.value?.highlights,
+  )
+    ? article.value.highlights
+    : []
+})
+
+
+const tags = computed(() => {
+  return Array.isArray(
+    article.value?.tags,
+  )
+    ? article.value.tags
+    : []
+})
+
+
+/*
+|--------------------------------------------------------------------------
+| RELATED ARTICLES
+|--------------------------------------------------------------------------
+*/
 
 const relatedArticles = computed(() => {
-  if (!article.value) return []
+  if (!article.value) {
+    return []
+  }
 
-  return getRelatedNews(article.value)
+  const result =
+    getRelatedNews(
+      article.value,
+    )
+
+  return Array.isArray(result)
+    ? result.slice(0, 3)
+    : []
+})
+
+
+/*
+|--------------------------------------------------------------------------
+| DYNAMIC DOCUMENT TITLE
+|--------------------------------------------------------------------------
+*/
+
+watchEffect(() => {
+  const siteName =
+    "Youth Entrepreneurs Network–Liberia"
+
+  document.title = article.value
+    ? `${article.value.title} | ${siteName}`
+    : `Article Not Found | ${siteName}`
 })
 </script>
 
+
 <template>
+  <!-- ==========================================
+       VALID ARTICLE
+  =========================================== -->
+
   <main
     v-if="article"
-    class="w-full"
+    class="w-full overflow-hidden"
   >
 
-    <!-- ======================================
+    <!-- ========================================
          ARTICLE HERO
-    ======================================= -->
+    ========================================= -->
 
     <section
-      class="relative isolate min-h-[620px] overflow-hidden"
+      class="relative isolate min-h-[600px] overflow-hidden sm:min-h-[640px] lg:min-h-[680px]"
     >
+      <!-- Background -->
+
       <img
         :src="article.image"
         :alt="article.title"
-        class="absolute inset-0 h-full w-full object-cover"
+        class="absolute inset-0 h-full w-full object-cover object-center"
       />
 
+
+      <!-- Contrast -->
+
       <div
-        class="absolute inset-0 bg-linear-to-r from-black/90 via-black/70 to-black/25"
+        class="absolute inset-0 bg-linear-to-r from-black/90 via-black/70 to-black/25 sm:from-black/90 sm:via-black/60 sm:to-black/10"
       ></div>
 
       <div
-        class="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/20"
+        class="absolute inset-0 bg-linear-to-t from-black/75 via-transparent to-black/20"
       ></div>
 
+
+      <!-- Content -->
+
       <div
-        class="relative z-10 mx-auto flex min-h-[620px] max-w-7xl items-end px-5 py-16 lg:px-8 lg:py-20"
+        class="relative z-10 mx-auto flex min-h-[600px] max-w-7xl items-end px-5 pb-16 pt-24 sm:min-h-[640px] sm:px-6 sm:pb-20 lg:min-h-[680px] lg:px-8"
       >
-        <div class="max-w-5xl">
+        <div class="w-full max-w-5xl">
 
           <!-- Breadcrumb -->
 
-          <div
-            class="mb-8 flex flex-wrap items-center gap-3 font-display text-xs font-bold"
+          <nav
+            class="mb-6 flex flex-wrap items-center gap-3 font-display text-xs font-bold sm:mb-8"
+            aria-label="Breadcrumb"
           >
             <RouterLink
               :to="{ name: 'home' }"
-              class="text-white/50 transition hover:text-yen-gold"
+              class="text-white/55 transition hover:text-yen-gold"
             >
               Home
             </RouterLink>
 
-            <span class="text-white/25">
+            <span
+              class="text-white/25"
+              aria-hidden="true"
+            >
               /
             </span>
 
             <RouterLink
               :to="{ name: 'news' }"
-              class="text-white/50 transition hover:text-yen-gold"
+              class="text-white/55 transition hover:text-yen-gold"
             >
               News
             </RouterLink>
 
-            <span class="text-white/25">
+            <span
+              class="text-white/25"
+              aria-hidden="true"
+            >
               /
             </span>
 
-            <span class="text-yen-gold">
-              {{ article.category }}
+            <span
+              class="max-w-[220px] truncate text-yen-gold sm:max-w-md"
+              aria-current="page"
+            >
+              {{
+                article.category ||
+                article.title
+              }}
             </span>
-          </div>
+          </nav>
 
 
-          <!-- Metadata -->
+          <!-- Category / type -->
 
           <div
-            class="flex flex-wrap items-center gap-3"
+            class="flex flex-wrap gap-3"
           >
             <span
+              v-if="article.category"
               class="rounded-full bg-yen-gold px-4 py-2 font-display text-[10px] font-extrabold uppercase tracking-wider text-black"
             >
               {{ article.category }}
             </span>
 
             <span
-              class="rounded-full border border-white/25 bg-white/10 px-4 py-2 font-display text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+              v-if="article.type"
+              class="rounded-full border border-white/25 bg-black/20 px-4 py-2 font-display text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
             >
               {{ article.type }}
             </span>
@@ -107,29 +222,40 @@ const relatedArticles = computed(() => {
           <!-- Title -->
 
           <h1
-            class="mt-6 max-w-5xl font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl lg:text-6xl"
+            class="mt-6 max-w-5xl font-display text-[38px] font-extrabold leading-[1.06] tracking-tight text-white min-[390px]:text-[44px] sm:text-5xl lg:text-6xl"
           >
             {{ article.title }}
           </h1>
 
 
-          <!-- Meta -->
+          <!-- Metadata -->
 
           <div
-            class="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3"
+            v-if="
+              article.date ||
+              article.source
+            "
+            class="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3"
           >
             <p
+              v-if="article.date"
               class="font-display text-xs font-semibold text-white/60"
             >
               {{ article.date }}
             </p>
 
             <span
+              v-if="
+                article.date &&
+                article.source
+              "
               class="hidden h-1 w-1 rounded-full bg-white/30 sm:block"
+              aria-hidden="true"
             ></span>
 
             <p
-              class="font-display text-xs font-semibold text-white/60"
+              v-if="article.source"
+              class="font-display text-xs font-semibold leading-5 text-white/60"
             >
               Source: {{ article.source }}
             </p>
@@ -137,213 +263,278 @@ const relatedArticles = computed(() => {
         </div>
       </div>
 
+
+      <!-- Accent -->
+
       <div
-        class="absolute bottom-0 h-1 w-full bg-linear-to-r from-yen-red via-yen-gold to-yen-red"
+        class="absolute bottom-0 left-0 z-20 h-1 w-full bg-linear-to-r from-yen-red via-yen-gold to-yen-red"
       ></div>
     </section>
 
 
-    <!-- ======================================
-         ARTICLE
-    ======================================= -->
+    <!-- ========================================
+         ARTICLE CONTENT
+    ========================================= -->
 
     <section class="bg-white">
       <div
-        class="mx-auto grid max-w-7xl gap-14 px-5 py-20 lg:grid-cols-[1fr_320px] lg:px-8 lg:py-28"
+        class="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-6 lg:grid-cols-[1fr_320px] lg:gap-14 lg:px-8 lg:py-28"
       >
 
-        <!-- Article body -->
+        <!-- ==================================
+             ARTICLE
+        =================================== -->
 
         <article class="max-w-3xl">
 
           <!-- Lead -->
 
           <p
-            class="font-body text-xl font-bold leading-9 text-black sm:text-2xl sm:leading-10"
+            v-if="article.intro"
+            class="font-body text-lg font-bold leading-8 text-black sm:text-2xl sm:leading-10"
           >
             {{ article.intro }}
           </p>
 
           <div
-            class="my-9 h-[3px] w-14 bg-yen-gold"
+            v-if="article.intro"
+            class="my-8 h-[3px] w-14 bg-yen-gold sm:my-9"
           ></div>
 
 
           <!-- Paragraphs -->
 
           <div
+            v-if="contentParagraphs.length"
             class="space-y-7"
           >
             <p
-              v-for="paragraph in article.content"
-              :key="paragraph"
-              class="font-body text-base leading-9 text-gray-600"
+              v-for="(paragraph, index) in contentParagraphs"
+              :key="`${index}-${paragraph.slice(0, 30)}`"
+              class="font-body text-sm leading-8 text-gray-600 sm:text-base sm:leading-9"
             >
               {{ paragraph }}
             </p>
           </div>
 
 
-          <!-- Highlights -->
+          <!-- =================================
+               HIGHLIGHTS
+          ================================== -->
 
-          <div
-            class="mt-12 rounded-[1.7rem] bg-[#f7f7f5] p-7 sm:p-8"
+          <section
+            v-if="highlights.length"
+            class="mt-10 rounded-[1.5rem] bg-[#f7f7f5] p-6 sm:mt-12 sm:rounded-[1.7rem] sm:p-8"
+            aria-labelledby="story-highlights-heading"
           >
-            <p
-              class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-red"
+            <h2
+              id="story-highlights-heading"
+              class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
             >
               Story Highlights
-            </p>
+            </h2>
 
-            <div
+            <ul
               class="mt-6 grid gap-4 sm:grid-cols-2"
             >
-              <div
-                v-for="highlight in article.highlights"
+              <li
+                v-for="highlight in highlights"
                 :key="highlight"
                 class="flex items-start gap-3"
               >
                 <span
                   class="mt-2 h-2 w-2 shrink-0 rounded-full bg-yen-gold"
+                  aria-hidden="true"
                 ></span>
 
-                <p
+                <span
                   class="font-display text-sm font-semibold leading-6 text-black"
                 >
                   {{ highlight }}
-                </p>
-              </div>
-            </div>
-          </div>
+                </span>
+              </li>
+            </ul>
+          </section>
 
 
-          <!-- Tags -->
+          <!-- =================================
+               TAGS
+          ================================== -->
 
-          <div
+          <section
+            v-if="tags.length"
             class="mt-10 border-t border-gray-200 pt-7"
+            aria-labelledby="article-topics-heading"
           >
-            <p
-              class="font-display text-xs font-bold uppercase tracking-wider text-gray-400"
+            <h2
+              id="article-topics-heading"
+              class="font-display text-[10px] font-bold uppercase tracking-wider text-gray-400 sm:text-xs"
             >
               Topics
-            </p>
+            </h2>
 
-            <div
+            <ul
               class="mt-4 flex flex-wrap gap-2"
             >
-              <span
-                v-for="tag in article.tags"
+              <li
+                v-for="tag in tags"
                 :key="tag"
                 class="rounded-full bg-[#f7f7f5] px-4 py-2 font-display text-xs font-bold text-gray-600"
               >
                 {{ tag }}
-              </span>
-            </div>
-          </div>
+              </li>
+            </ul>
+          </section>
         </article>
 
 
         <!-- ==================================
-             SIDEBAR
+             ARTICLE SIDEBAR
         =================================== -->
 
-        <aside>
+        <aside
+          aria-label="Article information"
+        >
           <div
-            class="sticky top-28 overflow-hidden rounded-[1.7rem] bg-black"
+            class="overflow-hidden rounded-[1.6rem] bg-black sm:rounded-[1.7rem] lg:sticky lg:top-28"
           >
-            <div class="p-7">
+            <div class="p-6 sm:p-7">
+
               <p
-                class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-gold"
+                class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
               >
                 Article Information
               </p>
 
-              <div
+
+              <dl
                 class="mt-6 divide-y divide-white/10"
               >
-                <div class="py-5 first:pt-0">
-                  <p
+                <!-- Published -->
+
+                <div
+                  v-if="article.date"
+                  class="py-5 first:pt-0"
+                >
+                  <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35"
                   >
                     Published
-                  </p>
+                  </dt>
 
-                  <p
-                    class="mt-2 font-display text-sm font-semibold text-white"
+                  <dd
+                    class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
                     {{ article.date }}
-                  </p>
+                  </dd>
                 </div>
 
-                <div class="py-5">
-                  <p
+
+                <!-- Author -->
+
+                <div
+                  v-if="article.author"
+                  class="py-5 first:pt-0"
+                >
+                  <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35"
                   >
-                    Original Author
-                  </p>
+                    Author
+                  </dt>
 
-                  <p
-                    class="mt-2 font-display text-sm font-semibold text-white"
+                  <dd
+                    class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
                     {{ article.author }}
-                  </p>
+                  </dd>
                 </div>
 
-                <div class="py-5">
-                  <p
+
+                <!-- Source -->
+
+                <div
+                  v-if="article.source"
+                  class="py-5 first:pt-0"
+                >
+                  <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35"
                   >
                     Source
-                  </p>
+                  </dt>
 
-                  <p
-                    class="mt-2 font-display text-sm font-semibold text-white"
+                  <dd
+                    class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
                     {{ article.source }}
-                  </p>
+                  </dd>
                 </div>
 
-                <div class="py-5">
-                  <p
+
+                <!-- Content Type -->
+
+                <div
+                  v-if="article.type"
+                  class="py-5 first:pt-0"
+                >
+                  <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35"
                   >
                     Content Type
-                  </p>
+                  </dt>
 
-                  <p
-                    class="mt-2 font-display text-sm font-semibold text-yen-gold"
+                  <dd
+                    class="mt-2 font-display text-sm font-semibold leading-6 text-yen-gold"
                   >
                     {{ article.type }}
-                  </p>
+                  </dd>
                 </div>
-              </div>
+              </dl>
 
 
-              <!-- Original source -->
+              <!-- Source link -->
 
               <a
+                v-if="article.sourceUrl"
                 :href="article.sourceUrl"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="mt-7 flex w-full items-center justify-center rounded-full bg-yen-gold px-6 py-4 font-display text-xs font-bold text-black transition hover:bg-white"
+                class="mt-7 flex w-full items-center justify-center rounded-full bg-yen-gold px-6 py-4 font-display text-xs font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
+                :aria-label="`Open original source for ${article.title} — opens in a new tab`"
               >
-                Read Original Coverage
+                View Original Source
 
-                <span class="ml-2">
+                <span
+                  class="ml-2"
+                  aria-hidden="true"
+                >
                   ↗
                 </span>
               </a>
+
+
+              <!-- Back -->
+
+              <RouterLink
+                :to="{ name: 'news' }"
+                class="mt-4 flex w-full items-center justify-center rounded-full border border-white/20 px-6 py-3.5 font-display text-xs font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
+              >
+                ← News & Insights
+              </RouterLink>
             </div>
 
+
+            <!-- Context note -->
+
             <div
-              class="bg-yen-gold px-7 py-5"
+              class="bg-yen-gold px-6 py-5 sm:px-7"
             >
               <p
                 class="font-body text-xs leading-6 text-black/70"
               >
-                This article summarizes publicly published
-                coverage relevant to YEN-Liberia. Follow the
-                source link for the original report.
+                Source, author and publication information are
+                displayed as provided with this story. Use the
+                original source link when available for complete
+                publication context.
               </p>
             </div>
           </div>
@@ -352,83 +543,153 @@ const relatedArticles = computed(() => {
     </section>
 
 
-    <!-- ======================================
+    <!-- ========================================
          RELATED STORIES
-    ======================================= -->
+    ========================================= -->
 
-    <section class="bg-[#f7f7f5]">
+    <section
+      v-if="relatedArticles.length"
+      class="bg-[#f7f7f5]"
+    >
       <div
-        class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24"
+        class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
+        <!-- Header -->
+
         <div
-          class="flex items-end justify-between gap-6"
+          class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
         >
           <div>
             <p
-              class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-red"
+              class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
             >
               Keep Reading
             </p>
 
             <h2
-              class="mt-3 font-display text-3xl font-extrabold text-black sm:text-4xl"
+              class="mt-3 font-display text-3xl font-extrabold leading-tight text-black sm:text-4xl"
             >
               Related stories
             </h2>
           </div>
 
+
           <RouterLink
             :to="{ name: 'news' }"
-            class="hidden font-display text-sm font-bold text-black transition hover:text-yen-red sm:block"
+            class="inline-flex items-center gap-2 font-display text-sm font-bold text-black transition hover:text-yen-red"
           >
-            View All News →
+            View All News
+
+            <span aria-hidden="true">
+              →
+            </span>
           </RouterLink>
         </div>
 
 
+        <!-- Cards -->
+
         <div
-          class="mt-9 grid gap-6 md:grid-cols-3"
+          class="mt-9 grid gap-6 md:grid-cols-2 xl:grid-cols-3"
         >
           <article
             v-for="related in relatedArticles"
             :key="related.id"
-            class="group overflow-hidden rounded-[1.5rem] bg-white transition hover:-translate-y-1 hover:shadow-xl"
+            class="group flex h-full flex-col overflow-hidden rounded-[1.5rem] bg-white transition duration-300 hover:-translate-y-2 hover:shadow-xl"
           >
+            <!-- Image -->
+
             <div
-              class="h-[220px] overflow-hidden"
+              class="relative h-[220px] overflow-hidden sm:h-[240px]"
             >
               <img
                 :src="related.image"
                 :alt="related.title"
-                class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                loading="lazy"
+                class="h-full w-full object-cover object-center transition duration-700 group-hover:scale-105"
               />
-            </div>
 
-            <div class="p-6">
-              <p
-                class="font-display text-[9px] font-extrabold uppercase tracking-[0.14em] text-yen-red"
+              <div
+                class="absolute inset-0 bg-linear-to-t from-black/55 via-transparent to-transparent"
+              ></div>
+
+
+              <span
+                v-if="related.category"
+                class="absolute left-4 top-4 rounded-full bg-yen-gold px-3 py-2 font-display text-[9px] font-extrabold uppercase text-black"
               >
                 {{ related.category }}
-              </p>
+              </span>
+            </div>
+
+
+            <!-- Body -->
+
+            <div
+              class="flex flex-1 flex-col p-6"
+            >
+              <div
+                class="flex flex-wrap items-center gap-3"
+              >
+                <span
+                  v-if="related.type"
+                  class="font-display text-[9px] font-extrabold uppercase tracking-[0.14em] text-yen-red"
+                >
+                  {{ related.type }}
+                </span>
+
+                <span
+                  v-if="
+                    related.type &&
+                    related.date
+                  "
+                  class="h-1 w-1 rounded-full bg-gray-300"
+                ></span>
+
+                <span
+                  v-if="related.date"
+                  class="font-display text-xs text-gray-400"
+                >
+                  {{ related.date }}
+                </span>
+              </div>
+
 
               <h3
-                class="mt-3 font-display text-lg font-bold leading-snug text-black"
+                class="mt-3 font-display text-xl font-bold leading-snug text-black"
               >
                 {{ related.title }}
               </h3>
 
-              <RouterLink
-                :to="{
-                  name: 'news-detail',
-                  params: {
-                    slug: related.slug,
-                  },
-                }"
-                class="mt-5 inline-flex items-center gap-2 font-display text-xs font-bold text-black transition group-hover:text-yen-red"
-              >
-                Read Story →
 
-              </RouterLink>
+              <p
+                v-if="related.excerpt"
+                class="mt-4 font-body text-sm leading-7 text-gray-600"
+              >
+                {{ related.excerpt }}
+              </p>
+
+
+              <div class="mt-auto pt-6">
+                <RouterLink
+                  :to="{
+                    name: 'news-detail',
+                    params: {
+                      slug: related.slug,
+                    },
+                  }"
+                  class="flex items-center justify-between rounded-xl bg-black px-5 py-4 font-display text-sm font-bold text-white transition group-hover:bg-yen-red"
+                >
+                  Read Story
+
+                  <span
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yen-gold text-black"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                </RouterLink>
+              </div>
             </div>
           </article>
         </div>
@@ -436,50 +697,152 @@ const relatedArticles = computed(() => {
     </section>
 
 
-    <!-- Back -->
+    <!-- ========================================
+         FINAL CTA
+    ========================================= -->
 
     <section class="bg-white">
       <div
-        class="mx-auto max-w-7xl px-5 py-14 lg:px-8"
+        class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
-        <RouterLink
-          :to="{ name: 'news' }"
-          class="font-display text-sm font-bold text-black transition hover:text-yen-red"
+        <div
+          class="relative overflow-hidden rounded-[1.7rem] bg-black p-7 sm:rounded-[2rem] sm:p-10 lg:p-14"
         >
-          ← Back to News & Insights
-        </RouterLink>
+          <div
+            class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-yen-gold/10"
+          ></div>
+
+
+          <div
+            class="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center"
+          >
+            <div class="max-w-3xl">
+              <p
+                class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
+              >
+                Stay Informed
+              </p>
+
+              <h2
+                class="mt-4 font-display text-2xl font-extrabold leading-tight text-white sm:text-4xl"
+              >
+                Follow what's happening across the
+                entrepreneurship ecosystem.
+              </h2>
+
+              <p
+                class="mt-4 max-w-2xl font-body text-sm leading-7 text-white/60 sm:text-base"
+              >
+                Explore more YEN-Liberia stories or subscribe for
+                news, opportunities, programs and event updates.
+              </p>
+            </div>
+
+
+            <div
+              class="flex flex-col gap-3 sm:flex-row lg:flex-col"
+            >
+              <RouterLink
+                :to="{ name: 'news' }"
+                class="inline-flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white sm:w-auto sm:min-w-[220px]"
+              >
+                Explore News
+
+                <span
+                  class="ml-3"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </RouterLink>
+
+              <RouterLink
+                :to="{
+                  name: 'home',
+                  hash: '#newsletter',
+                }"
+                class="inline-flex w-full items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold sm:w-auto sm:min-w-[220px]"
+              >
+                Join Newsletter
+              </RouterLink>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
 
-  <!-- ======================================
-       404
-  ======================================= -->
+  <!-- ==========================================
+       INVALID ARTICLE
+  =========================================== -->
 
   <main
     v-else
-    class="flex min-h-[65vh] items-center justify-center bg-white px-5 text-center"
+    class="relative flex min-h-[70vh] items-center overflow-hidden bg-white px-5 py-20 text-center"
   >
-    <div>
+    <div
+      class="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-yen-gold/15 blur-3xl"
+    ></div>
+
+    <div
+      class="pointer-events-none absolute -right-32 bottom-10 h-72 w-72 rounded-full bg-yen-red/10 blur-3xl"
+    ></div>
+
+
+    <div
+      class="relative mx-auto max-w-2xl"
+    >
       <p
-        class="font-display text-7xl font-black text-yen-gold"
+        class="font-display text-7xl font-black text-yen-gold sm:text-8xl"
       >
         404
       </p>
 
-      <h1
-        class="mt-4 font-display text-3xl font-extrabold text-black"
+      <p
+        class="mt-4 font-display text-[10px] font-extrabold uppercase tracking-[0.2em] text-yen-red sm:text-xs"
       >
-        Article not found
+        Article Not Found
+      </p>
+
+      <h1
+        class="mt-4 font-display text-3xl font-extrabold leading-tight text-black sm:text-4xl"
+      >
+        We couldn't find this story.
       </h1>
 
-      <RouterLink
-        :to="{ name: 'news' }"
-        class="mt-7 inline-flex rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white"
+      <p
+        class="mx-auto mt-4 max-w-lg font-body text-sm leading-7 text-gray-600 sm:text-base"
       >
-        Browse News
-      </RouterLink>
+        The article may have been removed, unpublished, or the
+        link may be incorrect.
+      </p>
+
+
+      <div
+        class="mt-8 flex flex-col justify-center gap-3 sm:flex-row"
+      >
+        <RouterLink
+          :to="{ name: 'news' }"
+          class="inline-flex items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition hover:bg-yen-red"
+        >
+          Browse News
+
+          <span
+            class="ml-3 text-yen-gold"
+            aria-hidden="true"
+          >
+            →
+          </span>
+        </RouterLink>
+
+        <RouterLink
+          :to="{ name: 'home' }"
+          class="inline-flex items-center justify-center rounded-full border border-black px-7 py-4 font-display text-sm font-bold text-black transition hover:bg-yen-gold"
+        >
+          Return Home
+        </RouterLink>
+      </div>
     </div>
   </main>
 </template>

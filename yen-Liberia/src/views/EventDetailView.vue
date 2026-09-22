@@ -1,22 +1,174 @@
 <script setup>
-import { computed } from "vue"
+import {
+  computed,
+  watchEffect,
+} from "vue"
+
 import { useRoute } from "vue-router"
 
 import {
+  events,
   getEventBySlug,
 } from "@/data/events"
 
+
+/*
+|--------------------------------------------------------------------------
+| ROUTE
+|--------------------------------------------------------------------------
+*/
+
 const route = useRoute()
 
-const event = computed(() =>
-  getEventBySlug(route.params.slug),
-)
+
+/*
+|--------------------------------------------------------------------------
+| CURRENT EVENT
+|--------------------------------------------------------------------------
+*/
+
+const event = computed(() => {
+  const slug = String(
+    route.params.slug ?? "",
+  )
+
+  return getEventBySlug(slug)
+})
+
+
+/*
+|--------------------------------------------------------------------------
+| SAFE DATA HELPERS
+|--------------------------------------------------------------------------
+*/
+
+const objectives = computed(() => {
+  return Array.isArray(
+    event.value?.objectives,
+  )
+    ? event.value.objectives
+    : []
+})
+
+
+const highlights = computed(() => {
+  return Array.isArray(
+    event.value?.highlights,
+  )
+    ? event.value.highlights
+    : []
+})
+
+
+const organizers = computed(() => {
+  return Array.isArray(
+    event.value?.organizers,
+  )
+    ? event.value.organizers
+    : []
+})
+
+
+const gallery = computed(() => {
+  return Array.isArray(
+    event.value?.gallery,
+  )
+    ? event.value.gallery.filter(Boolean)
+    : []
+})
+
+
+/*
+|--------------------------------------------------------------------------
+| FORMATTED LOCATION
+|--------------------------------------------------------------------------
+*/
+
+const fullLocation = computed(() => {
+  if (!event.value) {
+    return ""
+  }
+
+  return [
+    event.value.location,
+    event.value.city,
+    event.value.country,
+  ]
+    .filter(Boolean)
+    .join(", ")
+})
+
+
+/*
+|--------------------------------------------------------------------------
+| RELATED EVENTS
+|--------------------------------------------------------------------------
+|
+| Priority:
+| 1. Same category
+| 2. Other events
+|
+*/
+
+const relatedEvents = computed(() => {
+  if (!event.value) {
+    return []
+  }
+
+  const currentId =
+    event.value.id
+
+  const others = events.filter(
+    (item) =>
+      item.id !== currentId,
+  )
+
+  const sameCategory =
+    others.filter(
+      (item) =>
+        item.category ===
+        event.value.category,
+    )
+
+  const otherCategories =
+    others.filter(
+      (item) =>
+        item.category !==
+        event.value.category,
+    )
+
+  return [
+    ...sameCategory,
+    ...otherCategories,
+  ].slice(0, 3)
+})
+
+
+/*
+|--------------------------------------------------------------------------
+| DYNAMIC PAGE TITLE
+|--------------------------------------------------------------------------
+*/
+
+watchEffect(() => {
+  const siteName =
+    "Youth Entrepreneurs Network–Liberia"
+
+  document.title = event.value
+    ? `${event.value.title} | ${siteName}`
+    : `Event Not Found | ${siteName}`
+})
 </script>
 
+
 <template>
+  <!-- ==========================================
+       VALID EVENT
+  =========================================== -->
+
   <main
     v-if="event"
-    class="w-full"
+    class="w-full overflow-hidden"
   >
 
     <!-- ========================================
@@ -24,54 +176,79 @@ const event = computed(() =>
     ========================================= -->
 
     <section
-      class="relative isolate min-h-[620px] overflow-hidden"
+      class="relative isolate min-h-[600px] overflow-hidden sm:min-h-[640px] lg:min-h-[680px]"
     >
+      <!-- Background -->
+
       <img
         :src="event.image"
         :alt="event.title"
-        class="absolute inset-0 h-full w-full object-cover"
+        class="absolute inset-0 h-full w-full object-cover object-center"
       />
 
+
+      <!-- Contrast -->
+
       <div
-        class="absolute inset-0 bg-linear-to-r from-black/90 via-black/65 to-black/15"
+        class="absolute inset-0 bg-linear-to-r from-black/90 via-black/65 to-black/25 sm:from-black/85 sm:via-black/55 sm:to-black/10"
       ></div>
 
       <div
-        class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20"
+        class="absolute inset-0 bg-linear-to-t from-black/75 via-transparent to-black/20"
       ></div>
 
+
+      <!-- Content -->
+
       <div
-        class="relative z-10 mx-auto flex min-h-[620px] max-w-7xl items-end px-5 py-16 lg:px-8 lg:py-20"
+        class="relative z-10 mx-auto flex min-h-[600px] max-w-7xl items-end px-5 pb-16 pt-24 sm:min-h-[640px] sm:px-6 sm:pb-20 lg:min-h-[680px] lg:px-8"
       >
-        <div class="max-w-4xl">
+        <div class="w-full max-w-4xl">
 
           <!-- Breadcrumb -->
 
-          <div
-            class="mb-8 flex flex-wrap items-center gap-3 font-display text-xs font-bold"
+          <nav
+            class="mb-6 flex flex-wrap items-center gap-3 font-display text-xs font-bold sm:mb-8"
+            aria-label="Breadcrumb"
           >
             <RouterLink
               :to="{ name: 'home' }"
-              class="text-white/50 hover:text-yen-gold"
+              class="text-white/55 transition hover:text-yen-gold"
             >
               Home
             </RouterLink>
 
-            <span class="text-white/25">/</span>
+            <span
+              class="text-white/25"
+              aria-hidden="true"
+            >
+              /
+            </span>
 
             <RouterLink
               :to="{ name: 'events' }"
-              class="text-white/50 hover:text-yen-gold"
+              class="text-white/55 transition hover:text-yen-gold"
             >
               Events
             </RouterLink>
 
-            <span class="text-white/25">/</span>
-
-            <span class="text-yen-gold">
-              {{ event.shortTitle }}
+            <span
+              class="text-white/25"
+              aria-hidden="true"
+            >
+              /
             </span>
-          </div>
+
+            <span
+              class="max-w-[220px] truncate text-yen-gold sm:max-w-md"
+              aria-current="page"
+            >
+              {{
+                event.shortTitle ||
+                event.title
+              }}
+            </span>
+          </nav>
 
 
           <!-- Status -->
@@ -80,13 +257,15 @@ const event = computed(() =>
             class="flex flex-wrap gap-3"
           >
             <span
+              v-if="event.category"
               class="rounded-full bg-yen-gold px-4 py-2 font-display text-[10px] font-extrabold uppercase tracking-wider text-black"
             >
               {{ event.category }}
             </span>
 
             <span
-              class="rounded-full border border-white/25 bg-white/10 px-4 py-2 font-display text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+              v-if="event.status"
+              class="rounded-full border border-white/25 bg-black/20 px-4 py-2 font-display text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
             >
               {{ event.status }} Event
             </span>
@@ -96,29 +275,38 @@ const event = computed(() =>
           <!-- Title -->
 
           <h1
-            class="mt-6 font-display text-5xl font-extrabold leading-tight text-white sm:text-6xl lg:text-7xl"
+            class="mt-6 max-w-4xl font-display text-[38px] font-extrabold leading-[1.06] tracking-tight text-white min-[390px]:text-[44px] sm:text-6xl lg:text-7xl"
           >
             {{ event.title }}
           </h1>
 
+
           <!-- Theme -->
 
           <p
-            class="mt-5 max-w-3xl font-display text-lg font-semibold italic leading-8 text-yen-gold"
+            v-if="event.theme"
+            class="mt-5 max-w-3xl font-display text-base font-semibold italic leading-7 text-yen-gold sm:text-lg sm:leading-8"
           >
             “{{ event.theme }}”
           </p>
 
+
+          <!-- Summary -->
+
           <p
-            class="mt-6 max-w-3xl font-body text-base leading-8 text-white/70 sm:text-lg"
+            v-if="event.summary"
+            class="mt-6 max-w-3xl font-body text-sm leading-7 text-white/80 sm:text-lg sm:leading-8"
           >
             {{ event.summary }}
           </p>
         </div>
       </div>
 
+
+      <!-- Accent -->
+
       <div
-        class="absolute bottom-0 h-1 w-full bg-linear-to-r from-yen-red via-yen-gold to-yen-red"
+        class="absolute bottom-0 left-0 z-20 h-1 w-full bg-linear-to-r from-yen-red via-yen-gold to-yen-red"
       ></div>
     </section>
 
@@ -129,7 +317,7 @@ const event = computed(() =>
 
     <section class="bg-white">
       <div
-        class="mx-auto grid max-w-7xl gap-14 px-5 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28"
+        class="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:px-8 lg:py-28"
       >
 
         <!-- ==================================
@@ -138,154 +326,169 @@ const event = computed(() =>
 
         <div>
           <p
-            class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-red"
+            class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
           >
             Event Overview
           </p>
 
           <h2
-            class="mt-4 font-display text-4xl font-extrabold text-black"
+            class="mt-4 font-display text-3xl font-extrabold leading-tight text-black min-[390px]:text-4xl sm:text-5xl"
           >
             About the event
           </h2>
 
           <p
-            class="mt-6 font-body text-base leading-8 text-gray-600"
+            v-if="event.description"
+            class="mt-6 font-body text-sm leading-8 text-gray-600 sm:text-base"
           >
             {{ event.description }}
           </p>
 
 
-          <!-- Objectives -->
+          <!-- =================================
+               OBJECTIVES
+          ================================== -->
 
-          <div class="mt-12">
+          <section
+            v-if="objectives.length"
+            class="mt-10 sm:mt-12"
+            aria-labelledby="event-objectives-heading"
+          >
             <h3
+              id="event-objectives-heading"
               class="font-display text-2xl font-bold text-black"
             >
               Event Objectives
             </h3>
 
-            <div
+            <ul
               class="mt-6 space-y-4"
             >
-              <div
-                v-for="objective in event.objectives"
+              <li
+                v-for="objective in objectives"
                 :key="objective"
                 class="flex items-start gap-4"
               >
                 <span
-                  class="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-yen-gold font-display text-xs font-black text-black"
+                  class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-yen-gold font-display text-xs font-black text-black"
+                  aria-hidden="true"
                 >
                   ✓
                 </span>
 
-                <p
+                <span
                   class="font-body text-sm leading-7 text-gray-600"
                 >
                   {{ objective }}
-                </p>
-              </div>
-            </div>
-          </div>
+                </span>
+              </li>
+            </ul>
+          </section>
 
 
-          <!-- Highlights -->
+          <!-- =================================
+               HIGHLIGHTS
+          ================================== -->
 
-          <div class="mt-12">
+          <section
+            v-if="highlights.length"
+            class="mt-10 sm:mt-12"
+            aria-labelledby="event-highlights-heading"
+          >
             <h3
+              id="event-highlights-heading"
               class="font-display text-2xl font-bold text-black"
             >
               Key Themes & Highlights
             </h3>
 
-            <div
-              class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            <ol
+              class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
             >
-              <div
-                v-for="(highlight, index) in event.highlights"
+              <li
+                v-for="(highlight, index) in highlights"
                 :key="highlight"
-                class="rounded-[1.4rem] bg-[#f7f7f5] p-6"
+                class="flex h-full flex-col rounded-[1.4rem] bg-[#f7f7f5] p-6"
               >
                 <span
                   class="font-display text-sm font-extrabold text-yen-red"
+                  aria-hidden="true"
                 >
-                  {{ String(index + 1).padStart(2, "0") }}
+                  {{
+                    String(index + 1)
+                      .padStart(2, "0")
+                  }}
                 </span>
 
-                <p
+                <span
                   class="mt-3 font-display text-sm font-bold leading-6 text-black"
                 >
                   {{ highlight }}
-                </p>
-              </div>
-            </div>
-          </div>
+                </span>
+              </li>
+            </ol>
+          </section>
 
 
-          <!-- Organizers -->
+          <!-- =================================
+               ORGANIZERS
+          ================================== -->
 
-          <div class="mt-12">
+          <section
+            v-if="organizers.length"
+            class="mt-10 sm:mt-12"
+            aria-labelledby="event-organizers-heading"
+          >
             <h3
+              id="event-organizers-heading"
               class="font-display text-2xl font-bold text-black"
             >
               Organizers & Collaborators
             </h3>
 
-            <div
+            <ul
               class="mt-6 flex flex-wrap gap-3"
             >
-              <span
-                v-for="organizer in event.organizers"
+              <li
+                v-for="organizer in organizers"
                 :key="organizer"
-                class="rounded-full border border-gray-200 bg-white px-5 py-3 font-display text-xs font-bold text-black shadow-sm"
+                class="rounded-full border border-gray-200 bg-white px-4 py-3 font-display text-xs font-bold leading-5 text-black shadow-sm sm:px-5"
               >
                 {{ organizer }}
-              </span>
-            </div>
-          </div>
+              </li>
+            </ul>
+          </section>
 
 
-          <!-- Gallery placeholder -->
+          <!-- =================================
+               EVENT GALLERY
+          ================================== -->
 
-          <div class="mt-12">
+          <section
+            v-if="gallery.length"
+            class="mt-10 sm:mt-12"
+            aria-labelledby="event-gallery-heading"
+          >
             <h3
+              id="event-gallery-heading"
               class="font-display text-2xl font-bold text-black"
             >
               Event Gallery
             </h3>
 
             <div
-              v-if="event.gallery.length"
               class="mt-6 grid gap-4 sm:grid-cols-2"
             >
               <img
-                v-for="image in event.gallery"
+                v-for="(image, index) in gallery"
                 :key="image"
                 :src="image"
-                alt="Event gallery"
-                class="h-[300px] w-full rounded-[1.4rem] object-cover"
+                :alt="`${event.title} event photo ${index + 1}`"
+                loading="lazy"
+                class="h-[240px] w-full rounded-[1.4rem] object-cover object-center sm:h-[300px]"
               />
             </div>
-
-            <div
-              v-else
-              class="mt-6 rounded-[1.5rem] border border-dashed border-gray-300 bg-[#f7f7f5] p-8"
-            >
-              <p
-                class="font-display text-sm font-bold text-black"
-              >
-                Event gallery coming soon
-              </p>
-
-              <p
-                class="mt-2 font-body text-sm leading-7 text-gray-500"
-              >
-                Official YEN-Liberia event photographs can be
-                uploaded here through the Admin Dashboard once
-                the media system is connected.
-              </p>
-            </div>
-          </div>
+          </section>
         </div>
 
 
@@ -293,123 +496,144 @@ const event = computed(() =>
              SIDEBAR
         =================================== -->
 
-        <aside>
+        <aside
+          aria-label="Event details"
+        >
           <div
-            class="sticky top-28 overflow-hidden rounded-[1.8rem] bg-black"
+            class="overflow-hidden rounded-[1.6rem] bg-black sm:rounded-[1.8rem] lg:sticky lg:top-28"
           >
-            <div class="p-7 sm:p-8">
-
+            <div
+              class="p-6 sm:p-8"
+            >
               <p
-                class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-gold"
+                class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
               >
                 Event Details
               </p>
 
 
-              <div
+              <dl
                 class="mt-7 divide-y divide-white/10"
               >
-
                 <!-- Date -->
 
-                <div class="py-5 first:pt-0">
-                  <p
-                    class="font-display text-[10px] font-bold uppercase tracking-wider text-white/35"
+                <div
+                  v-if="event.date"
+                  class="py-5 first:pt-0"
+                >
+                  <dt
+                    class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
                     Date
-                  </p>
+                  </dt>
 
-                  <p
-                    class="mt-2 font-display text-sm font-semibold text-white"
+                  <dd
+                    class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
                     {{ event.date }}
-                  </p>
+                  </dd>
                 </div>
 
 
-                <!-- Duration -->
+                <!-- Time / duration -->
 
-                <div class="py-5">
-                  <p
-                    class="font-display text-[10px] font-bold uppercase tracking-wider text-white/35"
+                <div
+                  v-if="event.time"
+                  class="py-5 first:pt-0"
+                >
+                  <dt
+                    class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
-                    Duration
-                  </p>
+                    Time / Duration
+                  </dt>
 
-                  <p
-                    class="mt-2 font-display text-sm font-semibold text-white"
+                  <dd
+                    class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
                     {{ event.time }}
-                  </p>
+                  </dd>
                 </div>
 
 
                 <!-- Location -->
 
-                <div class="py-5">
-                  <p
-                    class="font-display text-[10px] font-bold uppercase tracking-wider text-white/35"
+                <div
+                  v-if="fullLocation"
+                  class="py-5 first:pt-0"
+                >
+                  <dt
+                    class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
                     Venue
-                  </p>
+                  </dt>
 
-                  <p
+                  <dd
                     class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                   >
-                    {{ event.location }}
-                  </p>
-
-                  <p
-                    class="mt-1 font-display text-xs text-white/45"
-                  >
-                    {{ event.city }},
-                    {{ event.country }}
-                  </p>
+                    {{ fullLocation }}
+                  </dd>
                 </div>
 
 
                 <!-- Participants -->
 
-                <div class="py-5">
-                  <p
-                    class="font-display text-[10px] font-bold uppercase tracking-wider text-white/35"
+                <div
+                  v-if="
+                    event.participants ||
+                    event.participantLabel
+                  "
+                  class="py-5 first:pt-0"
+                >
+                  <dt
+                    class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
                     Participation
-                  </p>
+                  </dt>
 
-                  <p
-                    class="mt-2 font-display text-3xl font-extrabold text-yen-gold"
-                  >
-                    {{ event.participants }}
-                  </p>
+                  <dd>
+                    <p
+                      v-if="event.participants"
+                      class="mt-2 font-display text-3xl font-extrabold text-yen-gold"
+                    >
+                      {{ event.participants }}
+                    </p>
 
-                  <p
-                    class="mt-1 font-display text-xs leading-5 text-white/45"
-                  >
-                    {{ event.participantLabel }}
-                  </p>
+                    <p
+                      v-if="event.participantLabel"
+                      class="mt-1 font-display text-xs leading-5 text-white/45"
+                    >
+                      {{ event.participantLabel }}
+                    </p>
+                  </dd>
                 </div>
 
 
                 <!-- Status -->
 
-                <div class="py-5">
-                  <p
-                    class="font-display text-[10px] font-bold uppercase tracking-wider text-white/35"
+                <div
+                  v-if="event.status"
+                  class="py-5 first:pt-0"
+                >
+                  <dt
+                    class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
                     Event Status
-                  </p>
+                  </dt>
 
-                  <span
-                    class="mt-2 inline-flex rounded-full bg-white/10 px-3 py-2 font-display text-xs font-bold text-white"
-                  >
-                    {{ event.status }}
-                  </span>
+                  <dd>
+                    <span
+                      class="mt-2 inline-flex rounded-full bg-white/10 px-3 py-2 font-display text-[10px] font-bold uppercase text-white"
+                    >
+                      {{ event.status }}
+                    </span>
+                  </dd>
                 </div>
-              </div>
+              </dl>
 
 
-              <!-- Registration -->
+              <!-- =================================
+                   REGISTRATION
+              ================================== -->
 
               <a
                 v-if="
@@ -419,13 +643,51 @@ const event = computed(() =>
                 :href="event.registrationUrl"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="mt-7 flex w-full justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition hover:bg-white"
+                class="mt-7 flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
+                :aria-label="`Register for ${event.title} — opens registration in a new tab`"
               >
                 Register for Event
+
+                <span
+                  class="ml-3"
+                  aria-hidden="true"
+                >
+                  ↗
+                </span>
               </a>
 
+
+              <!-- Upcoming but link unavailable -->
+
               <div
-                v-else-if="event.status === 'Past'"
+                v-else-if="
+                  event.status === 'Upcoming'
+                "
+                class="mt-7"
+              >
+                <button
+                  type="button"
+                  disabled
+                  class="flex w-full cursor-not-allowed items-center justify-center rounded-full bg-white/10 px-7 py-4 font-display text-sm font-bold text-white/45"
+                >
+                  Registration Not Open Yet
+                </button>
+
+                <p
+                  class="mt-3 text-center font-body text-xs leading-5 text-white/40"
+                >
+                  An official registration link has not yet
+                  been published on this page.
+                </p>
+              </div>
+
+
+              <!-- Past -->
+
+              <div
+                v-else-if="
+                  event.status === 'Past'
+                "
                 class="mt-7 rounded-xl border border-white/10 bg-white/5 p-4 text-center"
               >
                 <p
@@ -443,24 +705,42 @@ const event = computed(() =>
                 :href="event.sourceUrl"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="mt-4 flex w-full justify-center rounded-full border border-white/20 px-6 py-3.5 font-display text-xs font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
+                class="mt-4 flex w-full items-center justify-center rounded-full border border-white/20 px-6 py-3.5 font-display text-xs font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
+                :aria-label="`View published coverage for ${event.title} — opens in a new tab`"
               >
                 View Published Coverage
+
+                <span
+                  class="ml-2"
+                  aria-hidden="true"
+                >
+                  ↗
+                </span>
               </a>
+
+
+              <!-- Back -->
+
+              <RouterLink
+                :to="{ name: 'events' }"
+                class="mt-4 flex w-full items-center justify-center rounded-full border border-white/20 px-6 py-3.5 font-display text-xs font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
+              >
+                ← Browse Events
+              </RouterLink>
             </div>
 
 
             <!-- Notice -->
 
             <div
-              class="bg-yen-gold px-7 py-5 sm:px-8"
+              class="bg-yen-gold px-6 py-5 sm:px-8"
             >
               <p
                 class="font-body text-xs leading-6 text-black/70"
               >
-                Future event registration details will be
-                published only after YEN-Liberia officially
-                announces the event.
+                Registration details, schedules and attendance
+                information should always be confirmed through
+                YEN-Liberia or the event's official source.
               </p>
             </div>
           </div>
@@ -470,69 +750,316 @@ const event = computed(() =>
 
 
     <!-- ========================================
-         NAVIGATION
+         RELATED EVENTS
     ========================================= -->
 
-    <section class="bg-[#f7f7f5]">
+    <section
+      v-if="relatedEvents.length"
+      class="bg-[#f7f7f5]"
+    >
       <div
-        class="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-16 sm:flex-row sm:items-center sm:justify-between lg:px-8"
+        class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
-        <RouterLink
-          :to="{ name: 'events' }"
-          class="font-display text-sm font-bold text-black transition hover:text-yen-red"
-        >
-          ← Back to Events
-        </RouterLink>
+        <!-- Header -->
 
-        <RouterLink
-          :to="{ name: 'opportunities' }"
-          class="inline-flex items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition hover:bg-yen-red"
+        <div
+          class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
         >
-          Explore Opportunities
+          <div>
+            <p
+              class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
+            >
+              Keep Exploring
+            </p>
 
-          <span class="ml-3 text-yen-gold">
-            →
-          </span>
-        </RouterLink>
+            <h2
+              class="mt-3 font-display text-3xl font-extrabold leading-tight text-black sm:text-4xl"
+            >
+              More YEN events
+            </h2>
+          </div>
+
+
+          <RouterLink
+            :to="{ name: 'events' }"
+            class="inline-flex items-center gap-2 font-display text-sm font-bold text-black transition hover:text-yen-red"
+          >
+            View All Events
+
+            <span aria-hidden="true">
+              →
+            </span>
+          </RouterLink>
+        </div>
+
+
+        <!-- Cards -->
+
+        <div
+          class="mt-9 grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+        >
+          <article
+            v-for="item in relatedEvents"
+            :key="item.id"
+            class="group flex h-full flex-col overflow-hidden rounded-[1.6rem] bg-white transition duration-300 hover:-translate-y-2 hover:shadow-xl"
+          >
+            <!-- Image -->
+
+            <div
+              class="relative h-[230px] overflow-hidden"
+            >
+              <img
+                :src="item.image"
+                :alt="item.title"
+                loading="lazy"
+                class="h-full w-full object-cover object-center transition duration-700 group-hover:scale-105"
+              />
+
+              <div
+                class="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent"
+              ></div>
+
+
+              <!-- Status -->
+
+              <span
+                v-if="item.status"
+                class="absolute left-4 top-4 rounded-full bg-yen-gold px-3 py-2 font-display text-[9px] font-extrabold uppercase text-black"
+              >
+                {{ item.status }}
+              </span>
+            </div>
+
+
+            <!-- Body -->
+
+            <div
+              class="flex flex-1 flex-col p-6"
+            >
+              <div
+                class="flex flex-wrap items-center gap-3"
+              >
+                <span
+                  v-if="item.category"
+                  class="font-display text-[9px] font-extrabold uppercase tracking-wide text-yen-red"
+                >
+                  {{ item.category }}
+                </span>
+
+                <span
+                  v-if="
+                    item.category &&
+                    item.date
+                  "
+                  class="h-1 w-1 rounded-full bg-gray-300"
+                ></span>
+
+                <span
+                  v-if="item.date"
+                  class="font-display text-xs text-gray-400"
+                >
+                  {{ item.date }}
+                </span>
+              </div>
+
+
+              <h3
+                class="mt-4 font-display text-xl font-bold leading-snug text-black"
+              >
+                {{ item.title }}
+              </h3>
+
+
+              <p
+                v-if="item.summary"
+                class="mt-4 font-body text-sm leading-7 text-gray-600"
+              >
+                {{ item.summary }}
+              </p>
+
+
+              <div class="mt-auto pt-6">
+                <RouterLink
+                  :to="{
+                    name: 'event-detail',
+                    params: {
+                      slug: item.slug,
+                    },
+                  }"
+                  class="flex items-center justify-between rounded-xl bg-black px-5 py-4 font-display text-sm font-bold text-white transition group-hover:bg-yen-red"
+                >
+                  {{
+                    item.status === "Upcoming"
+                      ? "View Event"
+                      : "View Highlights"
+                  }}
+
+                  <span
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yen-gold text-black"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                </RouterLink>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================
+         FINAL CTA
+    ========================================= -->
+
+    <section class="bg-white">
+      <div
+        class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
+      >
+        <div
+          class="relative overflow-hidden rounded-[1.7rem] bg-black p-7 sm:rounded-[2rem] sm:p-10 lg:p-14"
+        >
+          <div
+            class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-yen-gold/10"
+          ></div>
+
+
+          <div
+            class="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center"
+          >
+            <!-- Copy -->
+
+            <div class="max-w-3xl">
+              <p
+                class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
+              >
+                Stay Connected
+              </p>
+
+              <h2
+                class="mt-4 font-display text-2xl font-extrabold leading-tight text-white sm:text-4xl"
+              >
+                Don't miss the next YEN-Liberia event.
+              </h2>
+
+              <p
+                class="mt-4 max-w-2xl font-body text-sm leading-7 text-white/60 sm:text-base"
+              >
+                Explore more activities or subscribe for
+                announcements about workshops, summits,
+                networking sessions and registrations.
+              </p>
+            </div>
+
+
+            <!-- CTAs -->
+
+            <div
+              class="flex flex-col gap-3 sm:flex-row lg:flex-col"
+            >
+              <RouterLink
+                :to="{ name: 'events' }"
+                class="inline-flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white sm:w-auto sm:min-w-[220px]"
+              >
+                Explore Events
+
+                <span
+                  class="ml-3"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </RouterLink>
+
+
+              <RouterLink
+                :to="{
+                  name: 'home',
+                  hash: '#newsletter',
+                }"
+                class="inline-flex w-full items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold sm:w-auto sm:min-w-[220px]"
+              >
+                Get Event Updates
+              </RouterLink>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
 
-  <!-- ========================================
-       404
-  ========================================= -->
+  <!-- ==========================================
+       INVALID EVENT
+  =========================================== -->
 
   <main
     v-else
-    class="flex min-h-[65vh] items-center justify-center bg-white px-5 text-center"
+    class="relative flex min-h-[70vh] items-center overflow-hidden bg-white px-5 py-20 text-center"
   >
-    <div>
+    <div
+      class="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-yen-gold/15 blur-3xl"
+    ></div>
+
+    <div
+      class="pointer-events-none absolute -right-32 bottom-10 h-72 w-72 rounded-full bg-yen-red/10 blur-3xl"
+    ></div>
+
+
+    <div
+      class="relative mx-auto max-w-2xl"
+    >
       <p
-        class="font-display text-7xl font-black text-yen-gold"
+        class="font-display text-7xl font-black text-yen-gold sm:text-8xl"
       >
         404
       </p>
 
-      <h1
-        class="mt-4 font-display text-3xl font-extrabold text-black"
+      <p
+        class="mt-4 font-display text-[10px] font-extrabold uppercase tracking-[0.2em] text-yen-red sm:text-xs"
       >
-        Event not found
+        Event Not Found
+      </p>
+
+      <h1
+        class="mt-4 font-display text-3xl font-extrabold leading-tight text-black sm:text-4xl"
+      >
+        We couldn't find this event.
       </h1>
 
       <p
-        class="mx-auto mt-3 max-w-md font-body text-sm leading-7 text-gray-500"
+        class="mx-auto mt-4 max-w-lg font-body text-sm leading-7 text-gray-600 sm:text-base"
       >
-        This event may have been removed or is not currently
-        available.
+        The event may have been removed, unpublished, or the
+        link may be incorrect.
       </p>
 
-      <RouterLink
-        :to="{ name: 'events' }"
-        class="mt-7 inline-flex rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white"
+
+      <div
+        class="mt-8 flex flex-col justify-center gap-3 sm:flex-row"
       >
-        Browse Events
-      </RouterLink>
+        <RouterLink
+          :to="{ name: 'events' }"
+          class="inline-flex items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition hover:bg-yen-red"
+        >
+          Browse Events
+
+          <span
+            class="ml-3 text-yen-gold"
+            aria-hidden="true"
+          >
+            →
+          </span>
+        </RouterLink>
+
+        <RouterLink
+          :to="{ name: 'home' }"
+          class="inline-flex items-center justify-center rounded-full border border-black px-7 py-4 font-display text-sm font-bold text-black transition hover:bg-yen-gold"
+        >
+          Return Home
+        </RouterLink>
+      </div>
     </div>
   </main>
 </template>

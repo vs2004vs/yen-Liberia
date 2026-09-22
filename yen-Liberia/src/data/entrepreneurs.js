@@ -38,8 +38,7 @@ export const entrepreneurs = [
       "Danise Dodoo founded Lenise Home Care & Support Services to address challenges within Liberia's informal domestic-work sector. The company trains and screens workers before placement, provides structured client support and creates employment opportunities, particularly for young women and single mothers.",
 
     story:
-      "What began with roughly 70 to 75 clients has grown into a business serving more than 180 households and businesses. Early support from the Youth Entrepreneurs Network included a US$2,000 grant that helped Lenise acquire a motorbike to improve monitoring, mobility and client response.",
-
+  "What began with roughly 70 to 75 clients has grown into a business serving more than 180 households and businesses. Early business support helped Lenise improve mobility, monitoring and client response as the company expanded.",
     yenSupport:
       "YEN-Liberia has worked alongside Lenise for more than two years, providing early business support and helping strengthen the company's growth journey.",
 

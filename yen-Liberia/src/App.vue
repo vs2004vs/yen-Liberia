@@ -1,13 +1,16 @@
 <script setup>
-import AppNavbar from "@/components/layout/AppNavbar.vue"
-import AppFooter from "@/components/layout/AppFooter.vue"
+import { RouterView } from 'vue-router'
+import AppNavbar from '@/components/layout/AppNavbar.vue'
+import AppFooter from '@/components/layout/AppFooter.vue'
 </script>
 
 <template>
-  <div class="min-h-screen w-full">
+  <div class="min-h-screen w-full bg-white">
     <AppNavbar />
 
-    <RouterView />
+    <main>
+      <RouterView />
+    </main>
 
     <AppFooter />
   </div>

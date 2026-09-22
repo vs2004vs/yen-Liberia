@@ -1,156 +1,42 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue"
+import { computed, ref } from "vue"
 
-const slider = ref(null)
-let autoplayTimer = null
-
-/*
-  Add the official partner logos here:
-
-  public/
-    images/
-      partners/
-        unido-grow2.png
-        lcc.png
-        mercy-corps.png
-        epa-liberia.png
-        yblc.png
-        her-voice.png
-*/
-
-const partners = [
-  {
-    id: 1,
-    name: "UNIDO GROW-2",
-    short: "UNIDO",
-    logo: "/images/partners/unido-grow2.png",
-  },
-  {
-    id: 2,
-    name: "Liberia Chamber of Commerce",
-    short: "LCC",
-    logo: "/images/partners/lcc.png",
-  },
-  {
-    id: 3,
-    name: "Mercy Corps Liberia",
-    short: "MC",
-    logo: "/images/partners/mercy-corps.png",
-  },
-  {
-    id: 4,
-    name: "Environmental Protection Agency of Liberia",
-    short: "EPA",
-    logo: "/images/partners/epa-liberia.png",
-  },
-  {
-    id: 5,
-    name: "Young Business Leaders Club",
-    short: "YBLC",
-    logo: "/images/partners/yblc.png",
-  },
-  {
-    id: 6,
-    name: "Her Voice Agriculture Farm",
-    short: "HVAF",
-    logo: "/images/partners/her-voice.png",
-  },
-]
+import {
+  partners,
+} from "@/data/partners"
 
 const failedLogos = ref([])
 
-const logoFailed = (id) => {
-  if (!failedLogos.value.includes(id)) {
-    failedLogos.value.push(id)
+const logoFailed = (partnerId) => {
+  if (!failedLogos.value.includes(partnerId)) {
+    failedLogos.value.push(partnerId)
   }
 }
 
-const scrollNext = () => {
-  if (!slider.value) return
-
-  const container = slider.value
-
-  const reachedEnd =
-    container.scrollLeft + container.clientWidth >=
-    container.scrollWidth - 20
-
-  if (reachedEnd) {
-    container.scrollTo({
-      left: 0,
-      behavior: "smooth",
-    })
-  } else {
-    container.scrollBy({
-      left: Math.min(container.clientWidth * 0.75, 380),
-      behavior: "smooth",
-    })
-  }
-}
-
-const scrollPrevious = () => {
-  if (!slider.value) return
-
-  const container = slider.value
-
-  if (container.scrollLeft <= 20) {
-    container.scrollTo({
-      left: container.scrollWidth,
-      behavior: "smooth",
-    })
-  } else {
-    container.scrollBy({
-      left: -Math.min(container.clientWidth * 0.75, 380),
-      behavior: "smooth",
-    })
-  }
-}
-
-const startAutoplay = () => {
-  stopAutoplay()
-
-  autoplayTimer = setInterval(() => {
-    scrollNext()
-  }, 3500)
-}
-
-const stopAutoplay = () => {
-  if (autoplayTimer) {
-    clearInterval(autoplayTimer)
-    autoplayTimer = null
-  }
-}
-
-onMounted(() => {
-  const reducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)",
-  ).matches
-
-  if (!reducedMotion) {
-    startAutoplay()
-  }
-})
-
-onBeforeUnmount(() => {
-  stopAutoplay()
-})
+/*
+  Duplicate partners so the logo track can loop
+  continuously without showing a large blank space.
+*/
+const partnerLoop = computed(() => [
+  ...partners,
+  ...partners,
+])
 </script>
 
 <template>
   <section
     id="partners"
-    class="overflow-hidden bg-white"
+    class="overflow-hidden bg-[#f7f7f5]"
   >
-    <!-- =========================================
-         PARTNER LOGO SLIDER
-    ========================================== -->
+    <!-- =====================================
+         PARTNER INTRO
+    ====================================== -->
 
     <div
-      class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24"
+      class="mx-auto max-w-7xl px-5 pb-14 pt-20 lg:px-8 lg:pb-16 lg:pt-28"
     >
-      <!-- Header -->
-
       <div
-        class="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between"
+        class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end"
       >
         <div>
           <div
@@ -168,307 +54,84 @@ onBeforeUnmount(() => {
           </div>
 
           <h2
-            class="font-display max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl"
-          >
-            Partnerships powering
-
-            <span class="text-yen-red">
-              entrepreneurship in Liberia.
-            </span>
-          </h2>
-        </div>
-
-        <!-- Slider Controls -->
-
-        <div
-          class="flex items-center gap-3"
-        >
-          <button
-            type="button"
-            aria-label="Previous partners"
-            class="flex h-12 w-12 items-center justify-center rounded-full border border-gray-300 bg-white text-black transition duration-300 hover:border-black hover:bg-black hover:text-yen-gold"
-            @click="scrollPrevious"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            aria-label="Next partners"
-            class="flex h-12 w-12 items-center justify-center rounded-full bg-black text-yen-gold transition duration-300 hover:bg-yen-red hover:text-white"
-            @click="scrollNext"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Description -->
-
-      <p
-        class="mt-6 max-w-3xl font-body text-base leading-8 text-gray-600"
-      >
-        We collaborate with public institutions, development
-        organizations, private-sector actors and entrepreneurship
-        networks to expand opportunities for young entrepreneurs
-        across Liberia.
-      </p>
-
-      <!-- =========================================
-           SLIDER
-      ========================================== -->
-
-      <div
-        class="relative mt-14"
-        @mouseenter="stopAutoplay"
-        @mouseleave="startAutoplay"
-      >
-        <!-- Left fade -->
-
-        <div
-          class="pointer-events-none absolute bottom-0 left-0 top-0 z-10 hidden w-16 bg-linear-to-r from-white to-transparent lg:block"
-        ></div>
-
-        <!-- Right fade -->
-
-        <div
-          class="pointer-events-none absolute bottom-0 right-0 top-0 z-10 hidden w-16 bg-linear-to-l from-white to-transparent lg:block"
-        ></div>
-
-        <div
-          ref="slider"
-          class="partner-slider flex snap-x snap-mandatory gap-5 overflow-x-auto px-1 py-4"
-        >
-          <article
-            v-for="partner in partners"
-            :key="partner.id"
-            class="group flex min-h-[190px] min-w-[82%] snap-start items-center justify-center rounded-[1.5rem] border border-gray-200 bg-white px-8 py-8 transition duration-300 hover:-translate-y-1 hover:border-yen-gold hover:shadow-xl sm:min-w-[45%] lg:min-w-[30%] xl:min-w-[23%]"
-          >
-            <!-- Actual Logo -->
-
-            <img
-              v-if="!failedLogos.includes(partner.id)"
-              :src="partner.logo"
-              :alt="`${partner.name} logo`"
-              class="max-h-24 max-w-[190px] object-contain transition duration-300 group-hover:scale-105"
-              @error="logoFailed(partner.id)"
-            />
-
-            <!-- Temporary fallback until logo is added -->
-
-            <div
-              v-else
-              class="flex flex-col items-center text-center"
-            >
-              <div
-                class="flex h-20 w-20 items-center justify-center rounded-2xl bg-black"
-              >
-                <span
-                  class="font-display text-lg font-extrabold text-yen-gold"
-                >
-                  {{ partner.short }}
-                </span>
-              </div>
-
-              <p
-                class="mt-4 max-w-[180px] font-display text-xs font-bold leading-5 text-gray-500"
-              >
-                {{ partner.name }}
-              </p>
-            </div>
-          </article>
-        </div>
-      </div>
-
-      <!-- Small caption -->
-
-      <div
-        class="mt-7 flex items-center gap-3"
-      >
-        <span
-          class="h-2 w-2 rounded-full bg-yen-gold"
-        ></span>
-
-        <p
-          class="font-display text-xs font-semibold text-gray-500"
-        >
-          Swipe or use the arrows to explore our ecosystem
-          collaborators.
-        </p>
-      </div>
-    </div>
-
-
-    <!-- =========================================
-         PARTNERSHIP MESSAGE
-    ========================================== -->
-
-    <div
-      class="bg-[#f7f7f5]"
-    >
-      <div
-        class="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8 lg:py-24"
-      >
-        <!-- Left -->
-
-        <div>
-          <p
-            class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-red"
-          >
-            Why Partner With Us
-          </p>
-
-          <h3
-            class="mt-4 font-display text-3xl font-extrabold leading-tight text-black sm:text-4xl"
+            class="max-w-3xl font-display text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl"
           >
             Strong partnerships create
 
             <span class="text-yen-red">
               greater impact.
             </span>
-          </h3>
-
-          <p
-            class="mt-5 font-body text-sm leading-7 text-gray-600 sm:text-base"
-          >
-            YEN-Liberia brings together entrepreneurs,
-            institutions, businesses and development partners
-            around a shared goal: creating a stronger environment
-            for young people to build sustainable enterprises.
-          </p>
-
-          <a
-            href="#partner-with-us"
-            class="mt-8 inline-flex items-center gap-3 rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition duration-300 hover:-translate-y-1 hover:bg-yen-red"
-          >
-            Partner With YEN
-
-            <span class="text-yen-gold">
-              →
-            </span>
-          </a>
+          </h2>
         </div>
 
-        <!-- Partnership Areas -->
-
-        <div
-          class="grid gap-4 sm:grid-cols-2"
+        <p
+          class="max-w-xl font-body text-base leading-8 text-gray-600 lg:ml-auto"
         >
-          <div
-            class="rounded-[1.5rem] bg-white p-7 shadow-sm"
-          >
-            <span
-              class="font-display text-3xl font-extrabold text-yen-gold"
-            >
-              01
-            </span>
+          YEN-Liberia works alongside public institutions,
+          development organizations, business networks and
+          private-sector partners to strengthen Liberia's
+          entrepreneurship ecosystem.
+        </p>
+      </div>
+    </div>
 
-            <h4
-              class="mt-4 font-display text-xl font-bold text-black"
-            >
-              Business Development
-            </h4>
 
-            <p
-              class="mt-3 font-body text-sm leading-7 text-gray-600"
-            >
-              Training, mentorship and technical support for
-              emerging enterprises.
-            </p>
-          </div>
+    <!-- =====================================
+         PARTNER SLIDER
+    ====================================== -->
 
-          <div
-            class="rounded-[1.5rem] bg-white p-7 shadow-sm"
-          >
-            <span
-              class="font-display text-3xl font-extrabold text-yen-red"
-            >
-              02
-            </span>
+    <div
+      class="relative border-y border-gray-200 bg-white py-10"
+    >
+      <!-- Edge fades -->
 
-            <h4
-              class="mt-4 font-display text-xl font-bold text-black"
-            >
-              Access to Markets
-            </h4>
+      <div
+        class="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-linear-to-r from-white to-transparent sm:w-28"
+      ></div>
 
-            <p
-              class="mt-3 font-body text-sm leading-7 text-gray-600"
-            >
-              Helping entrepreneurs connect with institutions,
-              customers and new opportunities.
-            </p>
-          </div>
+      <div
+        class="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-linear-to-l from-white to-transparent sm:w-28"
+      ></div>
 
-          <div
-            class="rounded-[1.5rem] bg-white p-7 shadow-sm"
-          >
-            <span
-              class="font-display text-3xl font-extrabold text-yen-red"
-            >
-              03
-            </span>
 
-            <h4
-              class="mt-4 font-display text-xl font-bold text-black"
-            >
-              Funding & Investment
-            </h4>
+      <!-- Track -->
 
-            <p
-              class="mt-3 font-body text-sm leading-7 text-gray-600"
-            >
-              Creating pathways toward finance, grants and
-              investment readiness.
-            </p>
-          </div>
+      <div
+        class="partner-marquee flex w-max items-center"
+      >
+        <div
+          v-for="(partner, index) in partnerLoop"
+          :key="`${partner.id}-${index}`"
+          class="mx-3 flex h-32 w-[240px] shrink-0 items-center justify-center rounded-[1.4rem] border border-gray-200 bg-white px-7 transition duration-300 hover:-translate-y-1 hover:border-yen-gold hover:shadow-xl"
+        >
+          <img
+            v-if="!failedLogos.includes(partner.id)"
+            :src="partner.logo"
+            :alt="`${partner.name} logo`"
+            class="max-h-20 max-w-[180px] object-contain"
+            @error="logoFailed(partner.id)"
+          />
+
+          <!-- Fallback -->
 
           <div
-            class="rounded-[1.5rem] bg-white p-7 shadow-sm"
+            v-else
+            class="flex flex-col items-center justify-center text-center"
           >
-            <span
-              class="font-display text-3xl font-extrabold text-yen-gold"
+            <div
+              class="flex h-14 w-14 items-center justify-center rounded-xl bg-black"
             >
-              04
-            </span>
-
-            <h4
-              class="mt-4 font-display text-xl font-bold text-black"
-            >
-              Ecosystem Building
-            </h4>
+              <span
+                class="font-display text-xs font-extrabold text-yen-gold"
+              >
+                {{ partner.shortName }}
+              </span>
+            </div>
 
             <p
-              class="mt-3 font-body text-sm leading-7 text-gray-600"
+              class="mt-3 max-w-[180px] font-display text-[10px] font-bold leading-4 text-gray-500"
             >
-              Connecting government, private sector and
-              development institutions around entrepreneurship.
+              {{ partner.name }}
             </p>
           </div>
         </div>
@@ -476,91 +139,211 @@ onBeforeUnmount(() => {
     </div>
 
 
-    <!-- =========================================
-         PARTNER CTA
-    ========================================== -->
+    <!-- =====================================
+         PARTNER DETAIL CARDS
+    ====================================== -->
 
     <div
-      id="partner-with-us"
-      class="relative overflow-hidden bg-black"
+      class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24"
     >
       <div
-        class="absolute -left-32 top-0 h-80 w-80 rounded-full bg-yen-red/10 blur-3xl"
-      ></div>
-
-      <div
-        class="absolute -right-32 bottom-0 h-80 w-80 rounded-full bg-yen-gold/10 blur-3xl"
-      ></div>
-
-      <div
-        class="relative mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8"
+        class="grid gap-6 md:grid-cols-3"
       >
-        <div
-          class="max-w-3xl"
+        <!-- COLLABORATE -->
+
+        <article
+          class="rounded-[1.7rem] bg-white p-8"
         >
-          <p
-            class="font-display text-xs font-bold uppercase tracking-[0.18em] text-yen-gold"
+          <span
+            class="font-display text-4xl font-extrabold text-yen-gold"
           >
-            Build With Us
-          </p>
+            01
+          </span>
 
           <h3
-            class="mt-5 font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl"
+            class="mt-5 font-display text-xl font-bold text-black"
           >
-            Let's build a stronger entrepreneurship ecosystem
-
-            <span class="text-yen-gold">
-              together.
-            </span>
+            Collaborate
           </h3>
 
           <p
-            class="mt-5 max-w-2xl font-body text-sm leading-7 text-white/65 sm:text-base"
+            class="mt-3 font-body text-sm leading-7 text-gray-600"
           >
-            We welcome businesses, investors, government
-            institutions, universities, foundations and
-            development organizations committed to supporting
-            Liberia's entrepreneurs.
+            Co-create entrepreneurship programs, workshops,
+            events and initiatives that address real business
+            needs.
           </p>
-        </div>
+        </article>
+
+
+        <!-- CONNECT -->
+
+        <article
+          class="rounded-[1.7rem] bg-black p-8"
+        >
+          <span
+            class="font-display text-4xl font-extrabold text-yen-gold"
+          >
+            02
+          </span>
+
+          <h3
+            class="mt-5 font-display text-xl font-bold text-white"
+          >
+            Connect
+          </h3>
+
+          <p
+            class="mt-3 font-body text-sm leading-7 text-white/60"
+          >
+            Help entrepreneurs connect with knowledge, finance,
+            institutions, markets, mentors and opportunities.
+          </p>
+        </article>
+
+
+        <!-- SCALE -->
+
+        <article
+          class="rounded-[1.7rem] bg-yen-gold p-8"
+        >
+          <span
+            class="font-display text-4xl font-extrabold text-yen-red"
+          >
+            03
+          </span>
+
+          <h3
+            class="mt-5 font-display text-xl font-bold text-black"
+          >
+            Scale Impact
+          </h3>
+
+          <p
+            class="mt-3 font-body text-sm leading-7 text-black/65"
+          >
+            Combine resources and expertise to strengthen more
+            youth-led businesses across Liberia.
+          </p>
+        </article>
+      </div>
+
+
+      <!-- =====================================
+           PARTNERSHIP CTA
+      ====================================== -->
+
+      <div
+        class="relative mt-14 overflow-hidden rounded-[2rem] bg-black p-8 sm:p-10 lg:p-14"
+      >
+        <div
+          class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-yen-gold/10"
+        ></div>
 
         <div
-          class="flex flex-col gap-3"
+          class="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-yen-red/10 blur-2xl"
+        ></div>
+
+
+        <div
+          class="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center"
         >
-          <a
-            href="#"
-            class="inline-flex min-w-[210px] items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
-          >
-            Become a Partner
+          <div class="max-w-3xl">
+            <p
+              class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-gold"
+            >
+              Build With Us
+            </p>
 
-            <span class="ml-3">
-              →
-            </span>
-          </a>
+            <h3
+              class="mt-4 font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl"
+            >
+              Become part of the ecosystem helping
 
-          <a
-            href="#contact"
-            class="inline-flex min-w-[210px] items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition duration-300 hover:border-yen-gold hover:text-yen-gold"
+              <span class="text-yen-gold">
+                entrepreneurs succeed.
+              </span>
+            </h3>
+
+            <p
+              class="mt-4 max-w-2xl font-body text-sm leading-7 text-white/60 sm:text-base"
+            >
+              Organizations can work with YEN-Liberia through
+              program funding, technical expertise, market
+              access, research, events, digital innovation and
+              other forms of collaboration.
+            </p>
+          </div>
+
+
+          <div
+            class="flex flex-col gap-3 sm:flex-row lg:flex-col"
           >
-            Contact YEN
-          </a>
+            <RouterLink
+              :to="{ name: 'partners' }"
+              class="inline-flex min-w-[220px] items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
+            >
+              Partner With YEN
+
+              <span class="ml-3">
+                →
+              </span>
+            </RouterLink>
+
+            <RouterLink
+              :to="{ name: 'contact' }"
+              class="inline-flex min-w-[220px] items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
+            >
+              Contact YEN
+            </RouterLink>
+          </div>
         </div>
       </div>
 
+
+      <!-- All partners link -->
+
       <div
-        class="h-1 bg-linear-to-r from-yen-red via-yen-gold to-yen-red"
-      ></div>
+        class="mt-10 flex justify-center"
+      >
+        <RouterLink
+          :to="{ name: 'partners' }"
+          class="inline-flex items-center gap-3 font-display text-sm font-bold text-black transition hover:text-yen-red"
+        >
+          Explore Our Partnership Ecosystem
+
+          <span>
+            →
+          </span>
+        </RouterLink>
+      </div>
     </div>
   </section>
 </template>
 
+
 <style scoped>
-.partner-slider {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+.partner-marquee {
+  animation: partner-scroll 35s linear infinite;
 }
 
-.partner-slider::-webkit-scrollbar {
-  display: none;
+.partner-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes partner-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-marquee {
+    animation: none;
+  }
 }
 </style>

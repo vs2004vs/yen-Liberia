@@ -78,10 +78,10 @@ export const programs = [
     ],
 
     partners: [
-      "Youth Entrepreneurs Network–Liberia",
-      "UNIDO",
-      "Liberia Chamber of Commerce",
-    ],
+  "Youth Entrepreneurs Network–Liberia",
+  "UNIDO GROW-2",
+  "Liberia Chamber of Commerce",
+],
 
     objectives: [
       "Showcase women-owned enterprises.",
@@ -99,7 +99,7 @@ export const programs = [
     category: "Climate & Sustainability",
     year: "2026",
     status: "Completed",
-    date: "June 30, 2026",
+    date: "Opened June 30, 2026",
     location: "Liberia Chamber of Commerce, Monrovia",
     image: "/images/hero/hero-3.jpg",
 

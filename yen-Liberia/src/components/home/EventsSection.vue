@@ -1,68 +1,41 @@
 <script setup>
-const recentEvents = [
-  {
-    id: 1,
-    category: "Women Entrepreneurship",
-    title: "Female Entrepreneurs Summit 2026",
-    date: "August 10–11, 2026",
-    location:
-      "Ellen Johnson Sirleaf Ministerial Complex, Congo Town",
-    image: "/images/hero/hero-1.jpg",
-    description:
-      "A two-day entrepreneurship summit bringing women entrepreneurs, business leaders and development partners together around investment, technology, formalization and market access.",
-    stat: "200+",
-    statLabel: "Participants",
-    featured: true,
-  },
+import { computed } from "vue"
+import { events } from "@/data/events"
 
-  {
-    id: 2,
-    category: "Climate & Business",
-    title: "Climate-Smart MSME Workshop",
-    date: "June 30, 2026",
-    location: "Liberia Chamber of Commerce, Monrovia",
-    image: "/images/hero/hero-3.jpg",
-    description:
-      "A four-day capacity-building workshop helping MSMEs understand how sustainable and climate-smart business practices can strengthen operations and competitiveness.",
-    stat: "4 Days",
-    statLabel: "Business Training",
-    featured: false,
-  },
+const featuredEvents = computed(() => {
+  return [...events]
+    .sort((a, b) => {
+      return (
+        new Date(b.startDate).getTime() -
+        new Date(a.startDate).getTime()
+      )
+    })
+    .slice(0, 3)
+})
 
-  {
-    id: 3,
-    category: "Business Development",
-    title: "2026 MSME Clinic",
-    date: "February 18–19, 2026",
-    location: "Liberia Chamber of Commerce, Monrovia",
-    image: "/images/hero/hero-4.jpg",
-    description:
-      "A practical entrepreneurship clinic supporting youth-led and emerging businesses with business formalization, finance, bookkeeping, branding and market readiness.",
-    stat: "100",
-    statLabel: "Entrepreneurs",
-    featured: false,
-  },
-]
+const upcomingEvents = computed(() =>
+  events.filter(
+    (event) => event.status === "Upcoming",
+  ),
+)
 </script>
 
 <template>
   <section
     id="events"
-    class="overflow-hidden bg-white"
+    class="overflow-hidden bg-[#f7f7f5]"
   >
     <div
       class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28"
     >
-
-      <!-- ==============================
-           SECTION HEADER
-      =============================== -->
+      <!-- =====================================
+           HEADER
+      ====================================== -->
 
       <div
-        class="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end"
+        class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between"
       >
         <div>
-
           <div
             class="mb-5 flex items-center gap-3"
           >
@@ -78,7 +51,7 @@ const recentEvents = [
           </div>
 
           <h2
-            class="font-display max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl"
+            class="max-w-3xl font-display text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl"
           >
             Where entrepreneurs
 
@@ -87,262 +60,87 @@ const recentEvents = [
             </span>
           </h2>
 
+          <p
+            class="mt-6 max-w-2xl font-body text-base leading-8 text-gray-600"
+          >
+            Explore entrepreneurship summits, workshops,
+            networking events and business-development
+            activities from the YEN-Liberia ecosystem.
+          </p>
         </div>
 
-        <p
-          class="max-w-xl font-body text-base leading-8 text-gray-600 lg:ml-auto"
+
+        <RouterLink
+          :to="{ name: 'events' }"
+          class="inline-flex shrink-0 items-center gap-3 rounded-full border border-black px-6 py-3.5 font-display text-sm font-bold text-black transition hover:bg-black hover:text-yen-gold"
         >
-          YEN-Liberia brings entrepreneurs, business leaders,
-          institutions and development partners together through
-          summits, workshops, networking activities and practical
-          business-development programs.
-        </p>
+          View All Events
+
+          <span>
+            →
+          </span>
+        </RouterLink>
       </div>
 
 
-      <!-- ==============================
-           FEATURED EVENT
-      =============================== -->
-
-      <article
-        class="group mt-14 overflow-hidden rounded-[2rem] bg-black"
-      >
-        <div
-          class="grid lg:grid-cols-[1.1fr_0.9fr]"
-        >
-
-          <!-- IMAGE -->
-
-          <div
-            class="relative min-h-[430px] overflow-hidden lg:min-h-[590px]"
-          >
-
-            <img
-              :src="recentEvents[0].image"
-              :alt="recentEvents[0].title"
-              class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
-            />
-
-            <div
-              class="absolute inset-0 bg-linear-to-t from-black/75 via-black/10 to-transparent"
-            ></div>
-
-            <!-- Tag -->
-
-            <div
-              class="absolute left-6 top-6"
-            >
-              <span
-                class="rounded-full bg-yen-gold px-4 py-2 font-display text-xs font-extrabold uppercase tracking-wider text-black"
-              >
-                Featured Event
-              </span>
-            </div>
-
-            <!-- Stats -->
-
-            <div
-              class="absolute bottom-6 left-6"
-            >
-              <p
-                class="font-display text-4xl font-extrabold text-yen-gold"
-              >
-                {{ recentEvents[0].stat }}
-              </p>
-
-              <p
-                class="mt-1 font-display text-sm font-semibold text-white"
-              >
-                {{ recentEvents[0].statLabel }}
-              </p>
-            </div>
-
-          </div>
-
-
-          <!-- CONTENT -->
-
-          <div
-            class="flex items-center p-8 sm:p-10 lg:p-14"
-          >
-            <div>
-
-              <p
-                class="font-display text-xs font-bold uppercase tracking-[0.16em] text-yen-gold"
-              >
-                {{ recentEvents[0].category }}
-              </p>
-
-              <h3
-                class="mt-4 font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl"
-              >
-                {{ recentEvents[0].title }}
-              </h3>
-
-
-              <!-- DATE -->
-
-              <div
-                class="mt-7 flex items-start gap-4"
-              >
-
-                <div
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yen-gold"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 text-black"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 7V3m8 4V3M5 11h14M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z"
-                    />
-                  </svg>
-                </div>
-
-                <div>
-                  <p
-                    class="font-display text-xs font-bold uppercase tracking-wider text-white/45"
-                  >
-                    Date
-                  </p>
-
-                  <p
-                    class="mt-1 font-display text-sm font-semibold text-white"
-                  >
-                    {{ recentEvents[0].date }}
-                  </p>
-                </div>
-
-              </div>
-
-
-              <!-- LOCATION -->
-
-              <div
-                class="mt-5 flex items-start gap-4"
-              >
-
-                <div
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yen-red"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 21s7-5.333 7-12a7 7 0 1 0-14 0c0 6.667 7 12 7 12Zm0-9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-                    />
-                  </svg>
-                </div>
-
-                <div>
-                  <p
-                    class="font-display text-xs font-bold uppercase tracking-wider text-white/45"
-                  >
-                    Location
-                  </p>
-
-                  <p
-                    class="mt-1 font-display text-sm font-semibold leading-6 text-white"
-                  >
-                    {{ recentEvents[0].location }}
-                  </p>
-                </div>
-
-              </div>
-
-
-              <!-- DESCRIPTION -->
-
-              <p
-                class="mt-7 font-body text-sm leading-8 text-white/65 sm:text-base"
-              >
-                {{ recentEvents[0].description }}
-              </p>
-
-
-              <!-- ACTION -->
-
-              <button
-                type="button"
-                class="mt-9 inline-flex items-center gap-3 rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
-              >
-                View Event Highlights
-
-                <span>
-                  →
-                </span>
-              </button>
-
-            </div>
-          </div>
-
-        </div>
-      </article>
-
-
-      <!-- ==============================
-           RECENT EVENTS
-      =============================== -->
+      <!-- =====================================
+           UPCOMING STATUS
+      ====================================== -->
 
       <div
-        class="mt-14 flex items-end justify-between gap-6"
+        v-if="!upcomingEvents.length"
+        class="mt-10 flex flex-col gap-5 rounded-[1.5rem] border border-yen-gold/40 bg-yen-gold/10 p-6 sm:flex-row sm:items-center sm:justify-between"
       >
-
         <div>
           <p
-            class="font-display text-xs font-extrabold uppercase tracking-[0.16em] text-yen-red"
+            class="font-display text-sm font-bold text-black"
           >
-            Recent Activities
+            No upcoming event has been announced yet.
           </p>
 
-          <h3
-            class="mt-2 font-display text-2xl font-bold text-black sm:text-3xl"
+          <p
+            class="mt-2 font-body text-sm leading-7 text-gray-600"
           >
-            More from the YEN network
-          </h3>
+            Browse recent activities below or subscribe to
+            receive an update when YEN-Liberia announces its
+            next event.
+          </p>
         </div>
 
-        <a
-          href="#"
-          class="hidden font-display text-sm font-bold text-black transition hover:text-yen-red sm:block"
-        >
-          View All Events →
-        </a>
 
+        <RouterLink
+          :to="{
+            name: 'home',
+            hash: '#newsletter',
+          }"
+          class="inline-flex shrink-0 items-center justify-center rounded-full bg-black px-6 py-3.5 font-display text-sm font-bold text-white transition hover:bg-yen-red"
+        >
+          Get Event Updates
+
+          <span class="ml-3 text-yen-gold">
+            →
+          </span>
+        </RouterLink>
       </div>
 
 
-      <!-- CARDS -->
+      <!-- =====================================
+           EVENT CARDS
+      ====================================== -->
 
       <div
-        class="mt-7 grid gap-7 md:grid-cols-2"
+        class="mt-10 grid gap-7 lg:grid-cols-3"
       >
-
         <article
-          v-for="event in recentEvents.slice(1)"
+          v-for="event in featuredEvents"
           :key="event.id"
-          class="group overflow-hidden rounded-[1.7rem] border border-gray-200 bg-white transition duration-300 hover:-translate-y-2 hover:border-transparent hover:shadow-2xl"
+          class="group flex flex-col overflow-hidden rounded-[1.8rem] bg-white transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
         >
-
-          <!-- IMAGE -->
+          <!-- Image -->
 
           <div
             class="relative h-[300px] overflow-hidden"
           >
-
             <img
               :src="event.image"
               :alt="event.title"
@@ -353,64 +151,97 @@ const recentEvents = [
               class="absolute inset-0 bg-linear-to-t from-black/75 via-black/10 to-transparent"
             ></div>
 
-            <!-- Category -->
+
+            <!-- Status -->
 
             <div
               class="absolute left-5 top-5"
             >
               <span
-                class="rounded-full bg-yen-gold px-4 py-2 font-display text-[10px] font-extrabold uppercase tracking-wider text-black"
+                class="rounded-full px-4 py-2 font-display text-[9px] font-extrabold uppercase tracking-wider"
+                :class="
+                  event.status === 'Upcoming'
+                    ? 'bg-yen-red text-white'
+                    : 'bg-yen-gold text-black'
+                "
               >
-                {{ event.category }}
+                {{ event.status }}
               </span>
             </div>
 
-            <!-- Stat -->
+
+            <!-- Participant impact -->
 
             <div
-              class="absolute bottom-5 left-5"
+              class="absolute bottom-5 left-5 right-5"
             >
               <p
-                class="font-display text-3xl font-extrabold text-white"
+                class="font-display text-3xl font-extrabold text-yen-gold"
               >
-                {{ event.stat }}
+                {{ event.participants }}
               </p>
 
               <p
-                class="font-display text-xs font-semibold text-white/70"
+                class="mt-1 max-w-[240px] font-display text-xs font-semibold leading-5 text-white/70"
               >
-                {{ event.statLabel }}
+                {{ event.participantLabel }}
               </p>
             </div>
-
           </div>
 
 
-          <!-- BODY -->
+          <!-- Content -->
 
           <div
-            class="p-7 sm:p-8"
+            class="flex flex-1 flex-col p-7"
           >
-
-            <p
-              class="font-display text-xs font-bold uppercase tracking-[0.14em] text-yen-red"
+            <div
+              class="flex flex-wrap items-center gap-3"
             >
-              {{ event.date }}
-            </p>
+              <span
+                class="font-display text-[9px] font-extrabold uppercase tracking-[0.14em] text-yen-red"
+              >
+                {{ event.category }}
+              </span>
+
+              <span
+                class="h-1 w-1 rounded-full bg-gray-300"
+              ></span>
+
+              <span
+                class="font-display text-xs font-semibold text-gray-400"
+              >
+                {{ event.date }}
+              </span>
+            </div>
+
 
             <h3
-              class="mt-3 font-display text-2xl font-bold leading-snug text-black"
+              class="mt-4 font-display text-xl font-bold leading-snug text-black"
             >
               {{ event.title }}
             </h3>
 
 
-            <!-- LOCATION -->
+            <p
+              class="mt-3 font-display text-xs font-semibold italic leading-6 text-gray-500"
+            >
+              “{{ event.theme }}”
+            </p>
+
+
+            <p
+              class="mt-4 flex-1 font-body text-sm leading-7 text-gray-600"
+            >
+              {{ event.summary }}
+            </p>
+
+
+            <!-- Location -->
 
             <div
-              class="mt-4 flex items-start gap-2"
+              class="mt-6 flex items-start gap-3 border-t border-gray-100 pt-5"
             >
-
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="mt-0.5 h-4 w-4 shrink-0 text-yen-red"
@@ -427,130 +258,107 @@ const recentEvents = [
               </svg>
 
               <span
-                class="font-display text-xs font-medium leading-5 text-gray-500"
+                class="font-display text-xs font-semibold leading-5 text-gray-500"
               >
-                {{ event.location }}
+                {{ event.location }},
+                {{ event.city }}
               </span>
-
             </div>
 
 
-            <p
-              class="mt-5 font-body text-sm leading-7 text-gray-600"
+            <RouterLink
+              :to="{
+                name: 'event-detail',
+                params: {
+                  slug: event.slug,
+                },
+              }"
+              class="mt-6 flex items-center justify-between rounded-xl bg-black px-5 py-4 font-display text-sm font-bold text-white transition group-hover:bg-yen-red"
             >
-              {{ event.description }}
-            </p>
-
-
-            <button
-              type="button"
-              class="mt-6 inline-flex items-center gap-3 font-display text-sm font-bold text-black transition group-hover:text-yen-red"
-            >
-              View Event
+              {{
+                event.status === "Upcoming"
+                  ? "View Event"
+                  : "View Highlights"
+              }}
 
               <span
-                class="flex h-8 w-8 items-center justify-center rounded-full bg-black text-yen-gold transition duration-300 group-hover:bg-yen-red group-hover:text-white"
+                class="flex h-8 w-8 items-center justify-center rounded-full bg-yen-gold text-black"
               >
                 →
               </span>
-            </button>
-
+            </RouterLink>
           </div>
-
         </article>
-
       </div>
 
 
-      <!-- ==============================
-           UPCOMING EVENT CTA
-      =============================== -->
+      <!-- =====================================
+           BOTTOM CTA
+      ====================================== -->
 
       <div
-        class="relative mt-16 overflow-hidden rounded-[2rem] bg-yen-gold p-8 sm:p-10 lg:p-12"
+        class="relative mt-16 overflow-hidden rounded-[2rem] bg-black p-8 sm:p-10 lg:p-12"
       >
-
-        <!-- Decorations -->
-
         <div
-          class="absolute -right-20 -top-20 h-64 w-64 rounded-full border-[35px] border-black/5"
+          class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-yen-gold/10"
         ></div>
-
-        <div
-          class="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-yen-red/10"
-        ></div>
-
 
         <div
           class="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center"
         >
-
-          <div
-            class="max-w-3xl"
-          >
-
-            <div
-              class="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2"
+          <div class="max-w-3xl">
+            <p
+              class="font-display text-xs font-extrabold uppercase tracking-[0.18em] text-yen-gold"
             >
-              <span
-                class="h-2 w-2 animate-pulse rounded-full bg-yen-red"
-              ></span>
-
-              <span
-                class="font-display text-[10px] font-extrabold uppercase tracking-[0.16em] text-white"
-              >
-                Upcoming
-              </span>
-            </div>
+              Stay Connected
+            </p>
 
             <h3
-              class="mt-5 font-display text-3xl font-extrabold leading-tight text-black sm:text-4xl"
+              class="mt-4 font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl"
             >
-              The next YEN-Liberia event is coming.
+              Don't miss the next
+
+              <span class="text-yen-gold">
+                YEN-Liberia event.
+              </span>
             </h3>
 
             <p
-              class="mt-4 max-w-2xl font-body text-sm leading-7 text-black/70 sm:text-base"
+              class="mt-4 max-w-2xl font-body text-sm leading-7 text-white/60 sm:text-base"
             >
-              Event details will be announced soon. Stay connected
-              to receive registration updates, entrepreneurship
-              workshops, networking sessions and upcoming YEN
-              activities.
+              Subscribe for announcements about workshops,
+              conferences, networking sessions and entrepreneur
+              registration opportunities.
             </p>
-
           </div>
 
 
           <div
             class="flex flex-col gap-3 sm:flex-row lg:flex-col"
           >
+            <RouterLink
+              :to="{ name: 'events' }"
+              class="inline-flex min-w-[210px] items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
+            >
+              Explore Events
+            </RouterLink>
 
-            <a
-              href="#newsletter"
-              class="inline-flex items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition duration-300 hover:-translate-y-1 hover:bg-yen-red"
+            <RouterLink
+              :to="{
+                name: 'home',
+                hash: '#newsletter',
+              }"
+              class="inline-flex min-w-[210px] items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition hover:-translate-y-1 hover:bg-white"
             >
               Get Event Updates
 
-              <span
-                class="ml-3 text-yen-gold"
-              >
+              <span class="ml-3">
                 →
               </span>
-            </a>
-
-            <a
-              href="#"
-              class="inline-flex items-center justify-center rounded-full border border-black/25 px-7 py-4 font-display text-sm font-bold text-black transition hover:bg-black hover:text-white"
-            >
-              View All Events
-            </a>
-
+            </RouterLink>
           </div>
-
         </div>
-
       </div>
-
     </div>
   </section>
 </template>

@@ -1,94 +1,150 @@
 <script setup>
 const currentYear = new Date().getFullYear()
 
+
+/*
+|--------------------------------------------------------------------------
+| FOOTER NAVIGATION
+|--------------------------------------------------------------------------
+*/
+
 const exploreLinks = [
   {
     label: "About YEN",
-    href: "#about",
+    to: {
+      name: "about",
+    },
   },
+
   {
     label: "Programs",
-    href: "#programs",
+    to: {
+      name: "programs",
+    },
   },
+
   {
     label: "Opportunities",
-    href: "#opportunities",
+    to: {
+      name: "opportunities",
+    },
   },
+
   {
     label: "Entrepreneurs",
-    href: "#entrepreneurs",
+    to: {
+      name: "entrepreneurs",
+    },
   },
+
   {
     label: "Events",
-    href: "#events",
+    to: {
+      name: "events",
+    },
   },
 ]
+
 
 const involvementLinks = [
   {
     label: "Join YEN-Liberia",
-    href: "#join",
+    to: {
+      name: "join",
+    },
   },
+
   {
     label: "Partner With Us",
-    href: "#partner-with-us",
+    to: {
+      name: "partners",
+    },
   },
+
   {
-    label: "Share Your Story",
-    href: "#stories",
+    label: "Contact Us",
+    to: {
+      name: "contact",
+    },
   },
+
   {
     label: "Newsletter",
-    href: "#newsletter",
+    to: {
+      name: "home",
+      hash: "#newsletter",
+    },
   },
 ]
+
 
 const resourceLinks = [
   {
     label: "News & Insights",
-    href: "#news",
+    to: {
+      name: "news",
+    },
   },
-  {
-    label: "Success Stories",
-    href: "#stories",
-  },
+
   {
     label: "Business Resources",
-    href: "#",
+    to: {
+      name: "resources",
+    },
   },
+
   {
-    label: "Media Center",
-    href: "#",
+    label: "Entrepreneur Directory",
+    to: {
+      name: "entrepreneurs",
+    },
+  },
+
+  {
+    label: "Partners",
+    to: {
+      name: "partners",
+    },
   },
 ]
 
+
 /*
-  IMPORTANT:
-  Replace these with YEN-Liberia's confirmed official
-  social media URLs before public launch.
+|--------------------------------------------------------------------------
+| SOCIAL LINKS
+|--------------------------------------------------------------------------
+|
+| Add ONLY confirmed official YEN-Liberia accounts.
+|
+| Keep href as null until the real URL is confirmed.
+| Links without confirmed URLs are not rendered.
+|
 */
+
 const socialLinks = [
   {
     name: "Facebook",
-    href: "#",
+    href: null,
     icon: "facebook",
   },
+
   {
     name: "LinkedIn",
-    href: "#",
+    href: null,
     icon: "linkedin",
   },
+
   {
     name: "Instagram",
-    href: "#",
+    href: null,
     icon: "instagram",
   },
 ]
 </script>
 
+
 <template>
   <footer
-    id="contact"
     class="relative overflow-hidden bg-black"
   >
     <!-- =========================================
@@ -97,16 +153,20 @@ const socialLinks = [
 
     <div
       class="pointer-events-none absolute -left-40 top-16 h-96 w-96 rounded-full bg-yen-red/10 blur-3xl"
+      aria-hidden="true"
     ></div>
 
     <div
       class="pointer-events-none absolute -right-40 bottom-20 h-96 w-96 rounded-full bg-yen-gold/10 blur-3xl"
+      aria-hidden="true"
     ></div>
 
-    <!-- YEN watermark -->
+
+    <!-- Decorative watermark -->
 
     <div
       class="pointer-events-none absolute bottom-0 right-0 select-none font-display text-[180px] font-black leading-none text-white/[0.025] sm:text-[260px] lg:text-[360px]"
+      aria-hidden="true"
     >
       YEN
     </div>
@@ -117,29 +177,33 @@ const socialLinks = [
     ========================================== -->
 
     <div
-      class="relative mx-auto max-w-7xl px-5 pb-12 pt-20 lg:px-8 lg:pb-14 lg:pt-24"
+      class="relative mx-auto max-w-7xl px-5 pb-12 pt-20 sm:px-6 lg:px-8 lg:pb-14 lg:pt-24"
     >
       <div
-        class="grid gap-14 lg:grid-cols-[1.35fr_0.75fr_0.85fr_0.85fr]"
+        class="grid gap-14 sm:grid-cols-2 lg:grid-cols-[1.35fr_0.75fr_0.85fr_0.85fr]"
       >
+
         <!-- =====================================
              BRAND COLUMN
         ====================================== -->
 
-        <div class="max-w-md">
+        <div
+          class="max-w-md sm:col-span-2 lg:col-span-1"
+        >
           <!-- Logo -->
 
-          <a
-            href="#home"
-            class="inline-flex"
-            aria-label="YEN-Liberia Home"
+          <RouterLink
+            :to="{ name: 'home' }"
+            class="inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+            aria-label="Youth Entrepreneurs Network Liberia Home"
           >
             <img
               src="/images/yen-logo.png"
-              alt="Youth Entrepreneurs Network Liberia"
+              alt=""
               class="h-24 w-auto object-contain sm:h-28"
             />
-          </a>
+          </RouterLink>
+
 
           <!-- Mission -->
 
@@ -151,6 +215,7 @@ const socialLinks = [
             contribute to Liberia's economic transformation.
           </p>
 
+
           <!-- Brand statement -->
 
           <div
@@ -158,6 +223,7 @@ const socialLinks = [
           >
             <span
               class="h-[3px] w-10 bg-yen-red"
+              aria-hidden="true"
             ></span>
 
             <p
@@ -167,59 +233,126 @@ const socialLinks = [
             </p>
           </div>
 
-          <!-- Social media -->
+
+          <!-- Quick CTAs -->
 
           <div
-            class="mt-8 flex items-center gap-3"
+            class="mt-8 flex flex-wrap gap-3"
           >
-            <a
-              v-for="social in socialLinks"
-              :key="social.name"
-              :href="social.href"
-              :aria-label="social.name"
-              class="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition duration-300 hover:-translate-y-1 hover:border-yen-gold hover:bg-yen-gold hover:text-black"
+            <RouterLink
+              :to="{ name: 'join' }"
+              class="inline-flex items-center justify-center rounded-full bg-yen-gold px-5 py-3 font-display text-xs font-bold text-black transition duration-300 hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
             >
-              <!-- Facebook -->
-              <svg
-                v-if="social.icon === 'facebook'"
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M13.5 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.8 1.8-1.8H17V2.4c-.3 0-1.4-.1-2.6-.1-2.6 0-4.4 1.6-4.4 4.6v2.6H7V13h3v9h3.5Z"
-                />
-              </svg>
+              Join YEN
+            </RouterLink>
 
-              <!-- LinkedIn -->
-              <svg
-                v-else-if="social.icon === 'linkedin'"
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M6.5 8.2H3V21h3.5V8.2ZM4.75 3A2.05 2.05 0 1 0 4.75 7.1 2.05 2.05 0 0 0 4.75 3ZM21 13.7c0-3.9-2.1-5.7-4.9-5.7-2.3 0-3.3 1.3-3.9 2.2v-2H8.7V21h3.5v-6.3c0-1.7.3-3.3 2.4-3.3 2 0 2.1 1.9 2.1 3.4V21H21v-7.3Z"
-                />
-              </svg>
 
-              <!-- Instagram -->
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="currentColor"
+            <RouterLink
+              :to="{ name: 'contact' }"
+              class="inline-flex items-center justify-center rounded-full border border-white/20 px-5 py-3 font-display text-xs font-bold text-white transition duration-300 hover:border-yen-gold hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+            >
+              Contact Us
+            </RouterLink>
+          </div>
+
+
+          <!-- =================================
+               SOCIAL MEDIA
+          ================================== -->
+
+          <div
+            v-if="
+              socialLinks.some(
+                (social) => social.href,
+              )
+            "
+            class="mt-7"
+          >
+            <p
+              class="sr-only"
+            >
+              Follow YEN-Liberia on social media
+            </p>
+
+            <ul
+              class="flex items-center gap-3"
+              aria-label="YEN-Liberia social media"
+            >
+              <template
+                v-for="social in socialLinks"
+                :key="social.name"
               >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm9.75 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </a>
+                <li
+                  v-if="social.href"
+                >
+                  <a
+                    :href="social.href"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    :aria-label="`${social.name} — opens in a new tab`"
+                    class="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition duration-300 hover:-translate-y-1 hover:border-yen-gold hover:bg-yen-gold hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                  >
+                    <!-- Facebook -->
+
+                    <svg
+                      v-if="
+                        social.icon ===
+                        'facebook'
+                      "
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M13.5 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.8 1.8-1.8H17V2.4c-.3 0-1.4-.1-2.6-.1-2.6 0-4.4 1.6-4.4 4.6v2.6H7V13h3v9h3.5Z"
+                      />
+                    </svg>
+
+
+                    <!-- LinkedIn -->
+
+                    <svg
+                      v-else-if="
+                        social.icon ===
+                        'linkedin'
+                      "
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M6.5 8.2H3V21h3.5V8.2ZM4.75 3A2.05 2.05 0 1 0 4.75 7.1 2.05 2.05 0 0 0 4.75 3ZM21 13.7c0-3.9-2.1-5.7-4.9-5.7-2.3 0-3.3 1.3-3.9 2.2v-2H8.7V21h3.5v-6.3c0-1.7.3-3.3 2.4-3.3 2 0 2.1 1.9 2.1 3.4V21H21v-7.3Z"
+                      />
+                    </svg>
+
+
+                    <!-- Instagram -->
+
+                    <svg
+                      v-else
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm9.75 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </a>
+                </li>
+              </template>
+            </ul>
           </div>
         </div>
 
@@ -229,32 +362,42 @@ const socialLinks = [
         ====================================== -->
 
         <div>
-          <h3
+          <h2
             class="font-display text-sm font-bold uppercase tracking-[0.15em] text-white"
           >
             Explore
-          </h3>
+          </h2>
 
           <div
             class="mt-2 h-[3px] w-8 bg-yen-gold"
+            aria-hidden="true"
           ></div>
 
+
           <nav
-            class="mt-7 flex flex-col gap-4"
+            class="mt-7"
             aria-label="Footer explore navigation"
           >
-            <a
-              v-for="link in exploreLinks"
-              :key="link.label"
-              :href="link.href"
-              class="group inline-flex items-center gap-2 font-display text-sm font-medium text-white/55 transition hover:text-yen-gold"
+            <ul
+              class="flex flex-col gap-4"
             >
-              <span
-                class="h-1.5 w-1.5 rounded-full bg-white/20 transition group-hover:bg-yen-red"
-              ></span>
+              <li
+                v-for="link in exploreLinks"
+                :key="link.label"
+              >
+                <RouterLink
+                  :to="link.to"
+                  class="group inline-flex items-center gap-2 rounded-sm font-display text-sm font-medium text-white/55 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                >
+                  <span
+                    class="h-1.5 w-1.5 rounded-full bg-white/20 transition group-hover:bg-yen-red"
+                    aria-hidden="true"
+                  ></span>
 
-              {{ link.label }}
-            </a>
+                  {{ link.label }}
+                </RouterLink>
+              </li>
+            </ul>
           </nav>
         </div>
 
@@ -264,32 +407,42 @@ const socialLinks = [
         ====================================== -->
 
         <div>
-          <h3
+          <h2
             class="font-display text-sm font-bold uppercase tracking-[0.15em] text-white"
           >
             Get Involved
-          </h3>
+          </h2>
 
           <div
             class="mt-2 h-[3px] w-8 bg-yen-red"
+            aria-hidden="true"
           ></div>
 
+
           <nav
-            class="mt-7 flex flex-col gap-4"
+            class="mt-7"
             aria-label="Footer involvement navigation"
           >
-            <a
-              v-for="link in involvementLinks"
-              :key="link.label"
-              :href="link.href"
-              class="group inline-flex items-center gap-2 font-display text-sm font-medium text-white/55 transition hover:text-yen-gold"
+            <ul
+              class="flex flex-col gap-4"
             >
-              <span
-                class="h-1.5 w-1.5 rounded-full bg-white/20 transition group-hover:bg-yen-red"
-              ></span>
+              <li
+                v-for="link in involvementLinks"
+                :key="link.label"
+              >
+                <RouterLink
+                  :to="link.to"
+                  class="group inline-flex items-center gap-2 rounded-sm font-display text-sm font-medium text-white/55 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                >
+                  <span
+                    class="h-1.5 w-1.5 rounded-full bg-white/20 transition group-hover:bg-yen-red"
+                    aria-hidden="true"
+                  ></span>
 
-              {{ link.label }}
-            </a>
+                  {{ link.label }}
+                </RouterLink>
+              </li>
+            </ul>
           </nav>
         </div>
 
@@ -299,32 +452,42 @@ const socialLinks = [
         ====================================== -->
 
         <div>
-          <h3
+          <h2
             class="font-display text-sm font-bold uppercase tracking-[0.15em] text-white"
           >
             Resources
-          </h3>
+          </h2>
 
           <div
             class="mt-2 h-[3px] w-8 bg-yen-gold"
+            aria-hidden="true"
           ></div>
 
+
           <nav
-            class="mt-7 flex flex-col gap-4"
+            class="mt-7"
             aria-label="Footer resources navigation"
           >
-            <a
-              v-for="link in resourceLinks"
-              :key="link.label"
-              :href="link.href"
-              class="group inline-flex items-center gap-2 font-display text-sm font-medium text-white/55 transition hover:text-yen-gold"
+            <ul
+              class="flex flex-col gap-4"
             >
-              <span
-                class="h-1.5 w-1.5 rounded-full bg-white/20 transition group-hover:bg-yen-red"
-              ></span>
+              <li
+                v-for="link in resourceLinks"
+                :key="link.label"
+              >
+                <RouterLink
+                  :to="link.to"
+                  class="group inline-flex items-center gap-2 rounded-sm font-display text-sm font-medium text-white/55 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                >
+                  <span
+                    class="h-1.5 w-1.5 rounded-full bg-white/20 transition group-hover:bg-yen-red"
+                    aria-hidden="true"
+                  ></span>
 
-              {{ link.label }}
-            </a>
+                  {{ link.label }}
+                </RouterLink>
+              </li>
+            </ul>
           </nav>
         </div>
       </div>
@@ -337,6 +500,7 @@ const socialLinks = [
       <div
         class="mt-16 grid overflow-hidden rounded-[1.7rem] border border-white/10 bg-white/[0.04] sm:grid-cols-3"
       >
+
         <!-- Location -->
 
         <div
@@ -344,6 +508,7 @@ const socialLinks = [
         >
           <div
             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yen-gold"
+            aria-hidden="true"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -351,6 +516,7 @@ const socialLinks = [
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              focusable="false"
             >
               <path
                 stroke-linecap="round"
@@ -360,6 +526,7 @@ const socialLinks = [
               />
             </svg>
           </div>
+
 
           <div>
             <p
@@ -373,17 +540,25 @@ const socialLinks = [
             >
               Monrovia, Liberia
             </p>
+
+            <p
+              class="mt-1 font-body text-xs text-white/35"
+            >
+              Republic of Liberia
+            </p>
           </div>
         </div>
 
 
-        <!-- Email -->
+        <!-- Contact -->
 
-        <div
-          class="flex gap-4 border-b border-white/10 p-6 sm:border-b-0 sm:border-r"
+        <RouterLink
+          :to="{ name: 'contact' }"
+          class="group flex gap-4 border-b border-white/10 p-6 transition hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yen-gold sm:border-b-0 sm:border-r"
         >
           <div
             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yen-red"
+            aria-hidden="true"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -391,6 +566,7 @@ const socialLinks = [
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              focusable="false"
             >
               <path
                 stroke-linecap="round"
@@ -401,30 +577,39 @@ const socialLinks = [
             </svg>
           </div>
 
+
           <div>
             <p
               class="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-white/40"
             >
-              Email
+              Get in Touch
             </p>
 
-            <!-- Replace with official YEN email -->
             <p
-              class="mt-2 font-display text-sm font-semibold text-white"
+              class="mt-2 font-display text-sm font-semibold text-white transition group-hover:text-yen-gold"
             >
-              Official email coming soon
+              Send YEN a Message
+            </p>
+
+            <p
+              class="mt-1 font-body text-xs text-white/35"
+            >
+              Contact form →
+
             </p>
           </div>
-        </div>
+        </RouterLink>
 
 
-        <!-- Phone -->
+        <!-- Partnership -->
 
-        <div
-          class="flex gap-4 p-6"
+        <RouterLink
+          :to="{ name: 'partners' }"
+          class="group flex gap-4 p-6 transition hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yen-gold"
         >
           <div
             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yen-gold"
+            aria-hidden="true"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -432,31 +617,39 @@ const socialLinks = [
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              focusable="false"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M3 5a2 2 0 0 1 2-2h3l2 5-2.5 1.5a15 15 0 0 0 7 7L16 14l5 2v3a2 2 0 0 1-2 2h-1C9.7 21 3 14.3 3 6V5Z"
+                d="M17 20h5v-2a4 4 0 0 0-5-3.87M9 20H2v-2a4 4 0 0 1 5-3.87m10-4.13a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM7 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm5 10v-2a4 4 0 0 0-8 0v2h8Z"
               />
             </svg>
           </div>
+
 
           <div>
             <p
               class="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-white/40"
             >
-              Telephone
+              Collaborate
             </p>
 
-            <!-- Replace with official YEN number -->
             <p
-              class="mt-2 font-display text-sm font-semibold text-white"
+              class="mt-2 font-display text-sm font-semibold text-white transition group-hover:text-yen-gold"
             >
-              Official number coming soon
+              Partner With YEN
+            </p>
+
+            <p
+              class="mt-1 font-body text-xs text-white/35"
+            >
+              Partnership opportunities →
+
             </p>
           </div>
-        </div>
+        </RouterLink>
       </div>
 
 
@@ -467,45 +660,66 @@ const socialLinks = [
       <div
         class="mt-12 flex flex-col gap-6 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between"
       >
+        <!-- Copyright -->
+
         <p
           class="font-body text-xs leading-6 text-white/40"
         >
-          © {{ currentYear }} Youth Entrepreneurs Network–Liberia.
+          © {{ currentYear }}
+          Youth Entrepreneurs Network–Liberia.
           All rights reserved.
         </p>
 
-        <div
-          class="flex flex-wrap items-center gap-x-6 gap-y-3"
+
+        <!-- Bottom navigation -->
+
+        <nav
+          aria-label="Footer utility navigation"
         >
-          <a
-            href="#"
-            class="font-display text-xs font-semibold text-white/40 transition hover:text-yen-gold"
+          <ul
+            class="flex flex-wrap items-center gap-x-5 gap-y-3"
           >
-            Privacy Policy
-          </a>
+            <li>
+              <RouterLink
+                :to="{ name: 'contact' }"
+                class="rounded-sm font-display text-xs font-semibold text-white/40 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+              >
+                Contact
+              </RouterLink>
+            </li>
 
-          <a
-            href="#"
-            class="font-display text-xs font-semibold text-white/40 transition hover:text-yen-gold"
-          >
-            Terms of Use
-          </a>
 
-          <a
-            href="#"
-            class="font-display text-xs font-semibold text-white/40 transition hover:text-yen-gold"
-          >
-            Accessibility
-          </a>
-        </div>
+            <li>
+              <RouterLink
+                :to="{ name: 'join' }"
+                class="rounded-sm font-display text-xs font-semibold text-white/40 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+              >
+                Join YEN
+              </RouterLink>
+            </li>
+
+
+            <li>
+              <RouterLink
+                :to="{ name: 'partners' }"
+                class="rounded-sm font-display text-xs font-semibold text-white/40 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+              >
+                Partnerships
+              </RouterLink>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
 
 
-    <!-- YEN BRAND STRIPE -->
+    <!-- =========================================
+         YEN BRAND STRIPE
+    ========================================== -->
 
     <div
       class="grid h-1.5 grid-cols-3"
+      aria-hidden="true"
     >
       <div class="bg-yen-red"></div>
 

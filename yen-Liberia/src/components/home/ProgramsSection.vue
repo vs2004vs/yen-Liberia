@@ -1,55 +1,28 @@
 <script setup>
-const programs = [
-  {
-    id: 1,
-    title: "2026 MSME Clinic",
-    category: "Business Development",
-    year: "2026",
-    image: "/images/hero/hero-3.jpg",
-    description:
-      "A practical business development clinic helping youth-led and emerging enterprises strengthen financial management, branding, bookkeeping, tax readiness and business formalization.",
-    highlight: "100 Entrepreneurs",
-    featured: true,
-  },
-  {
-    id: 2,
-    title: "Women Agribusiness Digital Empowerment",
-    category: "Digital Skills",
-    year: "2026",
-    image: "/images/hero/hero-2.jpg",
-    description:
-      "Hands-on digital training helping women entrepreneurs use social media, AI, online marketing, content creation and branding to grow their businesses.",
-    highlight: "Women Entrepreneurs",
-    featured: false,
-  },
-  {
-    id: 3,
-    title: "Global Entrepreneurship Week",
-    category: "Entrepreneurship Conference",
-    year: "2024",
-    image: "/images/hero/hero-4.jpg",
-    description:
-      "A national entrepreneurship gathering bringing young entrepreneurs and youth leaders together to exchange ideas, strengthen networks and explore inclusive business growth.",
-    highlight: "50+ Participants",
-    featured: false,
-  },
-]
+import { computed } from "vue"
+import { programs } from "@/data/programs"
+
+const featuredProgram = computed(() => programs[0])
+
+const secondaryPrograms = computed(() =>
+  programs.slice(1, 3),
+)
 </script>
 
 <template>
   <section
     id="programs"
-    class="bg-white"
+    class="overflow-hidden bg-white"
   >
     <div
       class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28"
     >
-      <!-- ==========================================
+      <!-- =====================================
            SECTION HEADER
-      =========================================== -->
+      ====================================== -->
 
       <div
-        class="grid items-end gap-8 lg:grid-cols-2"
+        class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end"
       >
         <div>
           <div
@@ -67,342 +40,278 @@ const programs = [
           </div>
 
           <h2
-            class="font-display max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl"
+            class="max-w-3xl font-display text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl"
           >
-            Practical programs that help
+            Practical programs that help entrepreneurs
 
             <span class="text-yen-red">
-              entrepreneurs grow.
+              move forward.
             </span>
           </h2>
         </div>
 
-        <div class="lg:pb-2">
+        <div>
           <p
             class="max-w-xl font-body text-base leading-8 text-gray-600 lg:ml-auto"
           >
-            YEN-Liberia works with entrepreneurs, institutions
-            and development partners to deliver practical
-            programs that strengthen businesses, improve skills
-            and create new pathways to opportunity.
+            YEN-Liberia works with entrepreneurs and ecosystem
+            partners to deliver training, capacity building,
+            networking and practical business-development
+            initiatives.
           </p>
         </div>
       </div>
 
-      <!-- ==========================================
-           FEATURED PROGRAM
-      =========================================== -->
+
+      <!-- =====================================
+           PROGRAM LAYOUT
+      ====================================== -->
 
       <div
-        class="mt-14 overflow-hidden rounded-[2rem] bg-black"
+        v-if="featuredProgram"
+        class="mt-14 grid gap-7 lg:grid-cols-[1.15fr_0.85fr]"
       >
-        <div
-          class="grid lg:grid-cols-2"
+        <!-- =================================
+             FEATURED PROGRAM
+        ================================== -->
+
+        <article
+          class="group relative min-h-[620px] overflow-hidden rounded-[2rem] bg-black"
         >
-          <!-- Image -->
+          <img
+            :src="featuredProgram.image"
+            :alt="featuredProgram.title"
+            class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+          />
+
           <div
-            class="relative min-h-[420px] overflow-hidden lg:min-h-[560px]"
+            class="absolute inset-0 bg-linear-to-t from-black via-black/55 to-black/5"
+          ></div>
+
+
+          <!-- Featured badge -->
+
+          <div
+            class="absolute left-6 top-6 sm:left-8 sm:top-8"
           >
-            <img
-              :src="programs[0].image"
-              :alt="programs[0].title"
-              class="absolute inset-0 h-full w-full object-cover transition duration-700 hover:scale-105"
-            />
-
-            <!-- Image shading -->
-            <div
-              class="absolute inset-0 bg-linear-to-t from-black/65 via-black/10 to-transparent"
-            ></div>
-
-            <!-- Featured label -->
-            <div
-              class="absolute left-6 top-6"
+            <span
+              class="inline-flex items-center gap-2 rounded-full bg-yen-gold px-4 py-2 font-display text-[10px] font-extrabold uppercase tracking-[0.15em] text-black"
             >
               <span
-                class="inline-flex items-center gap-2 rounded-full bg-yen-gold px-4 py-2 font-display text-xs font-bold uppercase tracking-wider text-black"
-              >
-                <span
-                  class="h-2 w-2 rounded-full bg-yen-red"
-                ></span>
+                class="h-2 w-2 rounded-full bg-yen-red"
+              ></span>
 
-                Featured Initiative
-              </span>
-            </div>
-
-            <!-- Mobile title overlay -->
-            <div
-              class="absolute bottom-6 left-6 right-6 lg:hidden"
-            >
-              <p
-                class="font-display text-sm font-semibold uppercase tracking-wider text-yen-gold"
-              >
-                {{ programs[0].category }}
-              </p>
-
-              <h3
-                class="mt-2 font-display text-3xl font-extrabold text-white"
-              >
-                {{ programs[0].title }}
-              </h3>
-            </div>
+              Featured Program
+            </span>
           </div>
+
 
           <!-- Content -->
-          <div
-            class="flex items-center p-8 sm:p-10 lg:p-14"
-          >
-            <div>
-              <!-- Meta -->
-              <div
-                class="flex flex-wrap items-center gap-3"
-              >
-                <span
-                  class="rounded-full border border-white/20 px-4 py-2 font-display text-xs font-semibold uppercase tracking-wider text-white/80"
-                >
-                  {{ programs[0].category }}
-                </span>
 
-                <span
-                  class="rounded-full border border-yen-gold/50 px-4 py-2 font-display text-xs font-bold text-yen-gold"
+          <div
+            class="absolute bottom-0 left-0 right-0 p-7 sm:p-9 lg:p-10"
+          >
+            <div
+              class="flex flex-wrap items-center gap-3"
+            >
+              <span
+                class="font-display text-xs font-extrabold uppercase tracking-[0.14em] text-yen-gold"
+              >
+                {{ featuredProgram.category }}
+              </span>
+
+              <span
+                class="h-1 w-1 rounded-full bg-white/40"
+              ></span>
+
+              <span
+                class="font-display text-xs font-semibold text-white/60"
+              >
+                {{ featuredProgram.year }}
+              </span>
+            </div>
+
+
+            <h3
+              class="mt-5 max-w-3xl font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl"
+            >
+              {{ featuredProgram.title }}
+            </h3>
+
+
+            <p
+              class="mt-5 max-w-2xl font-body text-sm leading-7 text-white/70 sm:text-base"
+            >
+              {{ featuredProgram.summary }}
+            </p>
+
+
+            <!-- Impact + button -->
+
+            <div
+              class="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"
+            >
+              <div>
+                <p
+                  class="font-display text-4xl font-extrabold text-yen-gold"
                 >
-                  {{ programs[0].year }}
-                </span>
+                  {{ featuredProgram.impact }}
+                </p>
+
+                <p
+                  class="mt-1 font-display text-xs font-semibold text-white/55"
+                >
+                  {{ featuredProgram.impactLabel }}
+                </p>
               </div>
 
-              <!-- Desktop title -->
-              <h3
-                class="mt-7 hidden font-display text-4xl font-extrabold leading-tight text-white lg:block xl:text-5xl"
+
+              <RouterLink
+                :to="{
+                  name: 'program-detail',
+                  params: {
+                    slug: featuredProgram.slug,
+                  },
+                }"
+                class="inline-flex items-center justify-center gap-3 rounded-full bg-yen-gold px-6 py-3.5 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
               >
-                {{ programs[0].title }}
+                View Program
+
+                <span>
+                  →
+                </span>
+              </RouterLink>
+            </div>
+          </div>
+        </article>
+
+
+        <!-- =================================
+             SECONDARY PROGRAMS
+        ================================== -->
+
+        <div
+          class="flex flex-col gap-7"
+        >
+          <article
+            v-for="program in secondaryPrograms"
+            :key="program.id"
+            class="group flex flex-1 flex-col overflow-hidden rounded-[1.7rem] border border-gray-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl sm:flex-row lg:flex-col xl:flex-row"
+          >
+            <!-- Image -->
+
+            <div
+              class="relative h-[240px] overflow-hidden sm:h-auto sm:w-[42%] lg:h-[230px] lg:w-full xl:h-auto xl:w-[42%]"
+            >
+              <img
+                :src="program.image"
+                :alt="program.title"
+                class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+              />
+
+              <div
+                class="absolute inset-0 bg-black/10"
+              ></div>
+
+
+              <div
+                class="absolute left-4 top-4"
+              >
+                <span
+                  class="rounded-full bg-yen-gold px-3 py-1.5 font-display text-[9px] font-extrabold uppercase tracking-wider text-black"
+                >
+                  {{ program.status }}
+                </span>
+              </div>
+            </div>
+
+
+            <!-- Content -->
+
+            <div
+              class="flex flex-1 flex-col justify-center p-6"
+            >
+              <p
+                class="font-display text-[10px] font-extrabold uppercase tracking-[0.14em] text-yen-red"
+              >
+                {{ program.category }}
+              </p>
+
+              <h3
+                class="mt-3 font-display text-xl font-bold leading-snug text-black"
+              >
+                {{ program.title }}
               </h3>
 
               <p
-                class="mt-6 font-body text-base leading-8 text-white/70"
+                class="mt-4 line-clamp-3 font-body text-sm leading-7 text-gray-600"
               >
-                {{ programs[0].description }}
+                {{ program.summary }}
               </p>
 
-              <!-- Impact -->
+
               <div
-                class="mt-8 border-l-4 border-yen-gold pl-5"
+                class="mt-5 flex items-center justify-between gap-4 border-t border-gray-100 pt-5"
               >
-                <p
-                  class="font-display text-3xl font-extrabold text-yen-gold"
-                >
-                  {{ programs[0].highlight }}
-                </p>
-
-                <p
-                  class="mt-1 font-body text-sm text-white/60"
-                >
-                  selected for the 2026 clinic
-                </p>
-              </div>
-
-              <!-- Program focus -->
-              <div
-                class="mt-9 grid grid-cols-2 gap-x-4 gap-y-4"
-              >
-                <div
-                  class="flex items-center gap-3 text-white/80"
-                >
-                  <span
-                    class="h-2 w-2 rounded-full bg-yen-gold"
-                  ></span>
-
-                  <span
-                    class="font-display text-sm font-medium"
+                <div>
+                  <p
+                    class="font-display text-[9px] font-bold uppercase tracking-wider text-gray-400"
                   >
-                    Branding
-                  </span>
+                    Impact
+                  </p>
+
+                  <p
+                    class="mt-1 font-display text-xs font-bold text-black"
+                  >
+                    {{ program.impact }}
+                    {{ program.impactLabel }}
+                  </p>
                 </div>
 
-                <div
-                  class="flex items-center gap-3 text-white/80"
-                >
-                  <span
-                    class="h-2 w-2 rounded-full bg-yen-gold"
-                  ></span>
 
-                  <span
-                    class="font-display text-sm font-medium"
-                  >
-                    Finance
-                  </span>
-                </div>
-
-                <div
-                  class="flex items-center gap-3 text-white/80"
-                >
-                  <span
-                    class="h-2 w-2 rounded-full bg-yen-red"
-                  ></span>
-
-                  <span
-                    class="font-display text-sm font-medium"
-                  >
-                    Bookkeeping
-                  </span>
-                </div>
-
-                <div
-                  class="flex items-center gap-3 text-white/80"
-                >
-                  <span
-                    class="h-2 w-2 rounded-full bg-yen-red"
-                  ></span>
-
-                  <span
-                    class="font-display text-sm font-medium"
-                  >
-                    Formalization
-                  </span>
-                </div>
-              </div>
-
-              <!-- Button -->
-              <button
-                type="button"
-                class="mt-10 inline-flex items-center gap-3 rounded-full bg-yen-gold px-6 py-3.5 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
-              >
-                Explore Program
-
-                <span
-                  class="text-lg"
+                <RouterLink
+                  :to="{
+                    name: 'program-detail',
+                    params: {
+                      slug: program.slug,
+                    },
+                  }"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black text-yen-gold transition duration-300 group-hover:bg-yen-red group-hover:text-white"
+                  :aria-label="`View ${program.title}`"
                 >
                   →
-                </span>
-              </button>
+                </RouterLink>
+              </div>
             </div>
-          </div>
+          </article>
         </div>
       </div>
 
-      <!-- ==========================================
-           OTHER PROGRAMS
-      =========================================== -->
+
+      <!-- =====================================
+           BOTTOM CTA
+      ====================================== -->
 
       <div
-        class="mt-8 grid gap-7 md:grid-cols-2"
+        class="mt-12 flex flex-col items-start justify-between gap-6 border-t border-gray-200 pt-8 sm:flex-row sm:items-center"
       >
-        <article
-          v-for="program in programs.slice(1)"
-          :key="program.id"
-          class="group overflow-hidden rounded-[1.7rem] border border-gray-200 bg-white transition duration-300 hover:-translate-y-2 hover:border-transparent hover:shadow-2xl"
+        <p
+          class="max-w-xl font-body text-sm leading-7 text-gray-500"
         >
-          <!-- Image -->
-          <div
-            class="relative h-[300px] overflow-hidden"
-          >
-            <img
-              :src="program.image"
-              :alt="program.title"
-              class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-            />
+          Explore YEN-Liberia's entrepreneurship programs,
+          capacity-building initiatives and ecosystem activities.
+        </p>
 
-            <div
-              class="absolute inset-0 bg-linear-to-t from-black/60 via-black/5 to-transparent"
-            ></div>
-
-            <!-- Year -->
-            <div
-              class="absolute right-5 top-5"
-            >
-              <span
-                class="rounded-full bg-black/70 px-4 py-2 font-display text-xs font-bold text-white backdrop-blur-md"
-              >
-                {{ program.year }}
-              </span>
-            </div>
-
-            <!-- Highlight -->
-            <div
-              class="absolute bottom-5 left-5"
-            >
-              <span
-                class="rounded-full bg-yen-gold px-4 py-2 font-display text-xs font-bold text-black"
-              >
-                {{ program.highlight }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Card body -->
-          <div class="p-7 sm:p-8">
-            <p
-              class="font-display text-xs font-bold uppercase tracking-[0.14em] text-yen-red"
-            >
-              {{ program.category }}
-            </p>
-
-            <h3
-              class="mt-3 font-display text-2xl font-bold leading-snug text-black"
-            >
-              {{ program.title }}
-            </h3>
-
-            <p
-              class="mt-4 font-body text-sm leading-7 text-gray-600"
-            >
-              {{ program.description }}
-            </p>
-
-            <button
-              type="button"
-              class="mt-6 inline-flex items-center gap-3 font-display text-sm font-bold text-black transition group-hover:text-yen-red"
-            >
-              Learn More
-
-              <span
-                class="flex h-8 w-8 items-center justify-center rounded-full bg-black text-yen-gold transition duration-300 group-hover:bg-yen-red group-hover:text-white"
-              >
-                →
-              </span>
-            </button>
-          </div>
-        </article>
-      </div>
-
-      <!-- ==========================================
-           PROGRAM CTA
-      =========================================== -->
-
-      <div
-        class="mt-14 flex flex-col items-start justify-between gap-7 rounded-[1.7rem] bg-[#f7f7f5] p-8 sm:p-10 lg:flex-row lg:items-center"
-      >
-        <div>
-          <p
-            class="font-display text-sm font-bold uppercase tracking-[0.16em] text-yen-red"
-          >
-            Building Businesses
-          </p>
-
-          <h3
-            class="mt-3 max-w-2xl font-display text-2xl font-bold leading-snug text-black sm:text-3xl"
-          >
-            Looking for a program to help strengthen
-            your business?
-          </h3>
-
-          <p
-            class="mt-3 max-w-2xl font-body text-sm leading-7 text-gray-600"
-          >
-            Stay connected with YEN-Liberia for upcoming training,
-            mentorship, workshops, conferences and business
-            development opportunities.
-          </p>
-        </div>
-
-        <a
-          href="#opportunities"
-          class="inline-flex shrink-0 items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition duration-300 hover:-translate-y-1 hover:bg-yen-red"
+        <RouterLink
+          :to="{ name: 'programs' }"
+          class="inline-flex items-center gap-3 rounded-full border border-black px-6 py-3.5 font-display text-sm font-bold text-black transition duration-300 hover:bg-black hover:text-yen-gold"
         >
-          Find Opportunities
+          View All Programs
 
-          <span class="ml-3 text-yen-gold">
+          <span>
             →
           </span>
-        </a>
+        </RouterLink>
       </div>
     </div>
   </section>
