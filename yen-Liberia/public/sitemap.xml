@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+>
+
+  <!-- =========================================
+       MAIN WEBSITE
+  ========================================== -->
+
+  <url>
+    <loc>https://yen-lib.netlify.app/</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/about</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/programs</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/events</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/resources</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/news</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/partners</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/contact</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/join</loc>
+  </url>
+
+
+  <!-- =========================================
+       PROGRAMS
+  ========================================== -->
+
+  <url>
+    <loc>https://yen-lib.netlify.app/programs/msme-clinic-2026</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/programs/female-entrepreneurs-summit-2026</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/programs/climate-smart-msme-workshop-2026</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/programs/global-entrepreneurship-week-2024</loc>
+  </url>
+
+
+  <!-- =========================================
+       EVENTS
+  ========================================== -->
+
+  <url>
+    <loc>https://yen-lib.netlify.app/events/female-entrepreneurs-summit-2026</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/events/climate-smart-msme-workshop-2026</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/events/msme-clinic-2026</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/events/global-entrepreneurship-week-2024</loc>
+  </url>
+
+
+  <!-- =========================================
+       NEWS & INSIGHTS
+  ========================================== -->
+
+  <url>
+    <loc>https://yen-lib.netlify.app/news/female-entrepreneurs-summit-2026</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/news/climate-smart-msme-workshop-2026</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/news/msme-clinic-2026</loc>
+  </url>
+
+  <url>
+    <loc>https://yen-lib.netlify.app/news/global-entrepreneurship-week-2024</loc>
+  </url>
+
+
+  <!-- =========================================
+       RESOURCES
+  ========================================== -->
+
+  <url>
+    <loc>https://yen-lib.netlify.app/resources/business-plan-guide</loc>
+  </url>
+
+
+  <!-- =========================================
+       VERIFIED ENTREPRENEUR PROFILE
+  ========================================== -->
+
+  <url>
+    <loc>https://yen-lib.netlify.app/entrepreneurs/danise-dodoo</loc>
+  </url>
+
+</urlset>

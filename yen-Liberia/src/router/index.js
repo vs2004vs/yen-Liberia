@@ -3,10 +3,50 @@ import {
   createWebHistory,
 } from "vue-router"
 
+import {
+  applyRouteSeo,
+} from "@/utils/seo"
+
+
+/*
+|--------------------------------------------------------------------------
+| MOTION PREFERENCE
+|--------------------------------------------------------------------------
+|
+| Router scroll behavior is JavaScript-driven, so the global CSS
+| reduced-motion rule does not necessarily control it.
+|
+| This helper lets anchor scrolling respect the user's OS/browser
+| reduced-motion preference.
+|
+*/
+
+const prefersReducedMotion = () => {
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !==
+      "function"
+  ) {
+    return false
+  }
+
+  return window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| ROUTER
+|--------------------------------------------------------------------------
+*/
+
 const router = createRouter({
   history: createWebHistory(
     import.meta.env.BASE_URL,
   ),
+
 
   routes: [
     // =========================================
@@ -16,6 +56,7 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
+
       component: () =>
         import("@/views/HomeView.vue"),
 
@@ -32,6 +73,7 @@ const router = createRouter({
     {
       path: "/about",
       name: "about",
+
       component: () =>
         import("@/views/AboutView.vue"),
 
@@ -48,8 +90,11 @@ const router = createRouter({
     {
       path: "/programs",
       name: "programs",
+
       component: () =>
-        import("@/views/ProgramsView.vue"),
+        import(
+          "@/views/ProgramsView.vue"
+        ),
 
       meta: {
         title: "Programs",
@@ -59,6 +104,7 @@ const router = createRouter({
     {
       path: "/programs/:slug",
       name: "program-detail",
+
       component: () =>
         import(
           "@/views/ProgramDetailView.vue"
@@ -77,6 +123,7 @@ const router = createRouter({
     {
       path: "/entrepreneurs",
       name: "entrepreneurs",
+
       component: () =>
         import(
           "@/views/EntrepreneursView.vue"
@@ -90,6 +137,7 @@ const router = createRouter({
     {
       path: "/entrepreneurs/:slug",
       name: "entrepreneur-detail",
+
       component: () =>
         import(
           "@/views/EntrepreneurDetailView.vue"
@@ -108,6 +156,7 @@ const router = createRouter({
     {
       path: "/opportunities",
       name: "opportunities",
+
       component: () =>
         import(
           "@/views/OpportunitiesView.vue"
@@ -121,6 +170,7 @@ const router = createRouter({
     {
       path: "/opportunities/:slug",
       name: "opportunity-detail",
+
       component: () =>
         import(
           "@/views/OpportunityDetailView.vue"
@@ -139,8 +189,11 @@ const router = createRouter({
     {
       path: "/events",
       name: "events",
+
       component: () =>
-        import("@/views/EventsView.vue"),
+        import(
+          "@/views/EventsView.vue"
+        ),
 
       meta: {
         title: "Events",
@@ -150,6 +203,7 @@ const router = createRouter({
     {
       path: "/events/:slug",
       name: "event-detail",
+
       component: () =>
         import(
           "@/views/EventDetailView.vue"
@@ -168,6 +222,7 @@ const router = createRouter({
     {
       path: "/resources",
       name: "resources",
+
       component: () =>
         import(
           "@/views/ResourcesView.vue"
@@ -181,6 +236,7 @@ const router = createRouter({
     {
       path: "/resources/:slug",
       name: "resource-detail",
+
       component: () =>
         import(
           "@/views/ResourceDetailView.vue"
@@ -199,8 +255,11 @@ const router = createRouter({
     {
       path: "/news",
       name: "news",
+
       component: () =>
-        import("@/views/NewsView.vue"),
+        import(
+          "@/views/NewsView.vue"
+        ),
 
       meta: {
         title: "News & Insights",
@@ -210,6 +269,7 @@ const router = createRouter({
     {
       path: "/news/:slug",
       name: "news-detail",
+
       component: () =>
         import(
           "@/views/NewsDetailView.vue"
@@ -228,6 +288,7 @@ const router = createRouter({
     {
       path: "/partners",
       name: "partners",
+
       component: () =>
         import(
           "@/views/PartnersView.vue"
@@ -246,6 +307,7 @@ const router = createRouter({
     {
       path: "/contact",
       name: "contact",
+
       component: () =>
         import(
           "@/views/ContactView.vue"
@@ -264,23 +326,28 @@ const router = createRouter({
     {
       path: "/join",
       name: "join",
+
       component: () =>
-        import("@/views/JoinView.vue"),
+        import(
+          "@/views/JoinView.vue"
+        ),
 
       meta: {
-        title: "Join YEN-Liberia",
+        title:
+          "Join YEN-Liberia",
       },
     },
 
 
     // =========================================
     // 404
-    // MUST REMAIN LAST
+    // MUST ALWAYS REMAIN LAST
     // =========================================
 
     {
       path: "/:pathMatch(.*)*",
       name: "not-found",
+
       component: () =>
         import(
           "@/views/NotFoundView.vue"
@@ -293,46 +360,68 @@ const router = createRouter({
   ],
 
 
-  // =========================================
-  // SCROLL BEHAVIOR
-  // =========================================
+  /*
+  |--------------------------------------------------------------------------
+  | SCROLL BEHAVIOR
+  |--------------------------------------------------------------------------
+  */
 
   scrollBehavior(
     to,
-    from,
+    _from,
     savedPosition,
   ) {
     /*
-      Browser back/forward navigation
-      restores the user's previous position.
+      Browser Back / Forward
+
+      Restore the position the visitor was
+      previously viewing.
     */
+
     if (savedPosition) {
       return savedPosition
     }
 
+
     /*
-      Homepage anchors such as:
+      Hash navigation
+
+      Examples:
 
       /#newsletter
+      /partners#partnership-form
 
-      remain supported.
+      The top offset prevents the sticky navbar
+      from covering the destination.
     */
+
     if (to.hash) {
       return {
         el: to.hash,
-        behavior: "smooth",
+
         top: 100,
+
+        behavior:
+          prefersReducedMotion()
+            ? "auto"
+            : "smooth",
       }
     }
 
+
     /*
-      Normal page navigation starts from
-      the top of the page.
+      Normal navigation
+
+      Start every newly opened page from the top.
+
+      We intentionally do NOT use smooth scrolling
+      here because this is a new route rather than
+      movement within the same page.
     */
+
     return {
       top: 0,
       left: 0,
-      behavior: "smooth",
     }
   },
 })
@@ -342,21 +431,60 @@ const router = createRouter({
 |--------------------------------------------------------------------------
 | DOCUMENT TITLE
 |--------------------------------------------------------------------------
+|
+| Static routes use their route meta title.
+|
+| Detail views can still replace this generic title with their
+| specific program/article/event/resource name after loading.
+|
 */
 
-router.afterEach((to) => {
-  const siteName =
-    "Youth Entrepreneurs Network–Liberia"
+router.afterEach(
+  (
+    to,
+    _from,
+    failure,
+  ) => {
+    /*
+      Do not change the browser title if navigation
+      did not complete successfully.
+    */
 
-  const pageTitle =
-    typeof to.meta.title === "string"
-      ? to.meta.title
-      : ""
+    if (failure) {
+      return
+    }
 
-  document.title = pageTitle
-    ? `${pageTitle} | ${siteName}`
-    : siteName
-})
 
+    const siteName =
+      "Youth Entrepreneurs Network–Liberia"
+
+
+    const pageTitle =
+      typeof to.meta.title ===
+      "string"
+        ? to.meta.title
+        : ""
+
+
+    document.title =
+      pageTitle
+        ? `${pageTitle} | ${siteName}`
+        : siteName
+  },
+)
+
+router.afterEach(
+  (
+    to,
+    _from,
+    failure,
+  ) => {
+    if (failure) {
+      return
+    }
+
+    applyRouteSeo(to)
+  },
+)
 
 export default router

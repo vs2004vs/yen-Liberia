@@ -11,6 +11,10 @@ import {
   getResourceBySlug,
 } from "@/data/resources"
 
+import {
+  setPageSeo,
+} from "@/utils/seo"
+
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +42,7 @@ const resource = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
-| SAFE DATA HELPERS
+| SAFE RESOURCE DATA
 |--------------------------------------------------------------------------
 */
 
@@ -53,11 +57,33 @@ const contents = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
+| RESOURCE AVAILABILITY
+|--------------------------------------------------------------------------
+*/
+
+const hasDownload = computed(() => {
+  return Boolean(
+    resource.value?.fileUrl,
+  )
+})
+
+
+const hasExternalResource = computed(() => {
+  return Boolean(
+    resource.value?.externalUrl,
+  )
+})
+
+
+/*
+|--------------------------------------------------------------------------
 | RELATED RESOURCES
 |--------------------------------------------------------------------------
 |
-| Prefer resources from the same category,
-| then fill remaining spaces with other resources.
+| Priority:
+|
+| 1. Same category
+| 2. Other resources
 |
 */
 
@@ -69,20 +95,21 @@ const relatedResources = computed(() => {
   const currentId =
     resource.value.id
 
-  const others = resources.filter(
-    (item) =>
-      item.id !== currentId,
-  )
+  const otherResources =
+    resources.filter(
+      (item) =>
+        item.id !== currentId,
+    )
 
   const sameCategory =
-    others.filter(
+    otherResources.filter(
       (item) =>
         item.category ===
         resource.value.category,
     )
 
-  const differentCategory =
-    others.filter(
+  const otherCategories =
+    otherResources.filter(
       (item) =>
         item.category !==
         resource.value.category,
@@ -90,24 +117,103 @@ const relatedResources = computed(() => {
 
   return [
     ...sameCategory,
-    ...differentCategory,
+    ...otherCategories,
   ].slice(0, 3)
 })
 
 
 /*
 |--------------------------------------------------------------------------
-| DYNAMIC DOCUMENT TITLE
+| RESOURCE SEO
 |--------------------------------------------------------------------------
+|
+| Replace the router's generic:
+|
+| Resource | Youth Entrepreneurs Network–Liberia
+|
+| with the actual resource information.
+|
 */
 
 watchEffect(() => {
-  const siteName =
-    "Youth Entrepreneurs Network–Liberia"
+  /*
+  |--------------------------------------------------------------------------
+  | RESOURCE NOT FOUND
+  |--------------------------------------------------------------------------
+  */
 
-  document.title = resource.value
-    ? `${resource.value.title} | ${siteName}`
-    : `Resource Not Found | ${siteName}`
+  if (!resource.value) {
+    setPageSeo({
+      title:
+        "Resource Not Found",
+
+      description:
+        "The requested YEN-Liberia business resource could not be found.",
+
+      path:
+        route.path,
+
+      robots:
+        "noindex, follow",
+
+      type:
+        "website",
+    })
+
+    return
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | DESCRIPTION
+  |--------------------------------------------------------------------------
+  */
+
+  const description =
+    resource.value.summary ||
+    resource.value.description ||
+    "Access this YEN-Liberia business resource for entrepreneurs and small business owners."
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | SOCIAL IMAGE
+  |--------------------------------------------------------------------------
+  */
+
+  const image =
+    resource.value.image
+      ? new URL(
+          resource.value.image,
+          "https://yen-lib.netlify.app",
+        ).toString()
+      : undefined
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | APPLY SEO
+  |--------------------------------------------------------------------------
+  */
+
+  setPageSeo({
+    title:
+      resource.value.title,
+
+    description,
+
+    path:
+      route.path,
+
+    image,
+
+    robots:
+      "index, follow",
+
+    type:
+      "website",
+  })
 })
 </script>
 
@@ -121,7 +227,6 @@ watchEffect(() => {
     v-if="resource"
     class="w-full overflow-hidden"
   >
-
     <!-- ========================================
          HERO
     ========================================= -->
@@ -129,7 +234,7 @@ watchEffect(() => {
     <section
       class="relative isolate min-h-[540px] overflow-hidden sm:min-h-[580px] lg:min-h-[620px]"
     >
-      <!-- Background -->
+      <!-- Background image -->
 
       <img
         :src="resource.image"
@@ -138,24 +243,27 @@ watchEffect(() => {
       />
 
 
-      <!-- Contrast -->
+      <!-- Contrast overlays -->
 
       <div
-        class="absolute inset-0 bg-linear-to-r from-black/90 via-black/65 to-black/25 sm:from-black/85 sm:via-black/55 sm:to-black/10"
+        class="absolute inset-0 bg-linear-to-r from-black/90 via-black/70 to-black/25 sm:from-black/90 sm:via-black/60 sm:to-black/10"
+        aria-hidden="true"
       ></div>
 
       <div
-        class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20"
+        class="absolute inset-0 bg-linear-to-t from-black/75 via-transparent to-black/20"
+        aria-hidden="true"
       ></div>
 
 
-      <!-- Content -->
+      <!-- Hero content -->
 
       <div
-        class="relative z-10 mx-auto flex min-h-[540px] max-w-7xl items-center px-5 py-16 sm:min-h-[580px] sm:px-6 sm:py-20 lg:min-h-[620px] lg:px-8"
+        class="relative z-10 mx-auto flex min-h-[540px] max-w-7xl items-end px-5 pb-16 pt-24 sm:min-h-[580px] sm:px-6 sm:pb-20 lg:min-h-[620px] lg:px-8"
       >
-        <div class="w-full max-w-4xl">
-
+        <div
+          class="w-full max-w-4xl"
+        >
           <!-- Breadcrumb -->
 
           <nav
@@ -164,7 +272,7 @@ watchEffect(() => {
           >
             <RouterLink
               :to="{ name: 'home' }"
-              class="text-white/55 transition hover:text-yen-gold"
+              class="rounded-sm text-white/55 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold"
             >
               Home
             </RouterLink>
@@ -178,7 +286,7 @@ watchEffect(() => {
 
             <RouterLink
               :to="{ name: 'resources' }"
-              class="text-white/55 transition hover:text-yen-gold"
+              class="rounded-sm text-white/55 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold"
             >
               Resources
             </RouterLink>
@@ -194,31 +302,28 @@ watchEffect(() => {
               class="max-w-[220px] truncate text-yen-gold sm:max-w-md"
               aria-current="page"
             >
-              {{
-                resource.type ||
-                resource.title
-              }}
+              {{ resource.title }}
             </span>
           </nav>
 
 
-          <!-- Metadata -->
+          <!-- Category and type -->
 
           <div
             class="flex flex-wrap gap-3"
           >
             <span
-              v-if="resource.type"
-              class="rounded-full bg-yen-gold px-4 py-2 font-display text-[10px] font-extrabold uppercase tracking-wide text-black"
+              v-if="resource.category"
+              class="rounded-full bg-yen-gold px-4 py-2 font-display text-[10px] font-extrabold uppercase tracking-wider text-black"
             >
-              {{ resource.type }}
+              {{ resource.category }}
             </span>
 
             <span
-              v-if="resource.format"
-              class="rounded-full border border-white/25 bg-black/20 px-4 py-2 font-display text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md"
+              v-if="resource.type"
+              class="rounded-full border border-white/25 bg-black/20 px-4 py-2 font-display text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
             >
-              {{ resource.format }}
+              {{ resource.type }}
             </span>
           </div>
 
@@ -226,7 +331,7 @@ watchEffect(() => {
           <!-- Title -->
 
           <h1
-            class="mt-6 max-w-4xl font-display text-[38px] font-extrabold leading-[1.06] tracking-tight text-white min-[390px]:text-[44px] sm:text-5xl lg:text-6xl"
+            class="mt-6 max-w-4xl font-display text-[38px] font-extrabold leading-[1.06] tracking-tight text-white min-[390px]:text-[44px] sm:text-6xl lg:text-7xl"
           >
             {{ resource.title }}
           </h1>
@@ -236,31 +341,54 @@ watchEffect(() => {
 
           <p
             v-if="resource.summary"
-            class="mt-6 max-w-2xl font-body text-sm leading-7 text-white/80 sm:text-lg sm:leading-8"
+            class="mt-6 max-w-3xl font-body text-sm leading-7 text-white/80 sm:text-lg sm:leading-8"
           >
             {{ resource.summary }}
           </p>
+
+
+          <!-- Format/status -->
+
+          <div
+            class="mt-7 flex flex-wrap gap-3"
+          >
+            <span
+              v-if="resource.format"
+              class="rounded-full border border-white/20 bg-white/10 px-4 py-2 font-display text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur-md"
+            >
+              {{ resource.format }}
+            </span>
+
+            <span
+              v-if="resource.status"
+              class="rounded-full border border-white/20 bg-white/10 px-4 py-2 font-display text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur-md"
+            >
+              {{ resource.status }}
+            </span>
+          </div>
         </div>
       </div>
 
 
-      <!-- Accent -->
+      <!-- Brand accent -->
 
       <div
         class="absolute bottom-0 left-0 z-20 h-1 w-full bg-linear-to-r from-yen-red via-yen-gold to-yen-red"
+        aria-hidden="true"
       ></div>
     </section>
 
 
     <!-- ========================================
-         RESOURCE CONTENT
+         RESOURCE OVERVIEW
     ========================================= -->
 
-    <section class="bg-white">
+    <section
+      class="bg-white"
+    >
       <div
         class="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:px-8 lg:py-28"
       >
-
         <!-- ==================================
              MAIN CONTENT
         =================================== -->
@@ -278,6 +406,9 @@ watchEffect(() => {
             About this resource
           </h2>
 
+
+          <!-- Description -->
+
           <p
             v-if="resource.description"
             class="mt-6 font-body text-sm leading-8 text-gray-600 sm:text-base"
@@ -287,7 +418,7 @@ watchEffect(() => {
 
 
           <!-- =================================
-               CONTENTS
+               WHAT'S INCLUDED
           ================================== -->
 
           <section
@@ -299,34 +430,61 @@ watchEffect(() => {
               id="resource-contents-heading"
               class="font-display text-2xl font-bold text-black"
             >
-              What's Included
+              What's included
             </h3>
 
-            <ol
-              class="mt-6 grid gap-4 sm:grid-cols-2"
+            <ul
+              class="mt-6 space-y-4"
             >
               <li
-                v-for="(item, index) in contents"
-                :key="`${index}-${item}`"
-                class="flex h-full items-start gap-4 rounded-[1.3rem] bg-[#f7f7f5] p-5 sm:p-6"
+                v-for="item in contents"
+                :key="item"
+                class="flex items-start gap-4 rounded-xl bg-[#f7f7f5] p-4 sm:bg-transparent sm:p-0"
               >
                 <span
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yen-gold font-display text-xs font-bold text-black"
+                  class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-yen-gold font-display text-xs font-black text-black"
                   aria-hidden="true"
                 >
-                  {{
-                    String(index + 1)
-                      .padStart(2, "0")
-                  }}
+                  ✓
                 </span>
 
                 <span
-                  class="font-display text-sm font-semibold leading-6 text-black"
+                  class="font-body text-sm leading-7 text-gray-600"
                 >
                   {{ item }}
                 </span>
               </li>
-            </ol>
+            </ul>
+          </section>
+
+
+          <!-- =================================
+               AUDIENCE
+          ================================== -->
+
+          <section
+            v-if="resource.audience"
+            class="mt-10 rounded-[1.5rem] bg-[#f7f7f5] p-6 sm:mt-12 sm:p-8"
+            aria-labelledby="resource-audience-heading"
+          >
+            <p
+              class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red"
+            >
+              Who It's For
+            </p>
+
+            <h3
+              id="resource-audience-heading"
+              class="mt-3 font-display text-xl font-bold text-black sm:text-2xl"
+            >
+              Intended audience
+            </h3>
+
+            <p
+              class="mt-4 font-body text-sm leading-7 text-gray-600 sm:text-base"
+            >
+              {{ resource.audience }}
+            </p>
           </section>
         </div>
 
@@ -350,6 +508,8 @@ watchEffect(() => {
                 Resource Information
               </p>
 
+
+              <!-- Details -->
 
               <dl
                 class="mt-7 divide-y divide-white/10"
@@ -407,29 +567,9 @@ watchEffect(() => {
                   </dt>
 
                   <dd
-                    class="mt-2 font-display text-sm font-semibold leading-6 text-white"
+                    class="mt-2 font-display text-sm font-semibold leading-6 text-yen-gold"
                   >
                     {{ resource.format }}
-                  </dd>
-                </div>
-
-
-                <!-- Audience -->
-
-                <div
-                  v-if="resource.audience"
-                  class="py-5 first:pt-0"
-                >
-                  <dt
-                    class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
-                  >
-                    Designed For
-                  </dt>
-
-                  <dd
-                    class="mt-2 font-display text-sm font-semibold leading-6 text-white"
-                  >
-                    {{ resource.audience }}
                   </dd>
                 </div>
 
@@ -443,13 +583,15 @@ watchEffect(() => {
                   <dt
                     class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                   >
-                    Status
+                    Availability
                   </dt>
 
-                  <dd
-                    class="mt-2 font-display text-sm font-bold leading-6 text-yen-gold"
-                  >
-                    {{ resource.status }}
+                  <dd>
+                    <span
+                      class="mt-2 inline-flex rounded-full bg-white/10 px-3 py-2 font-display text-[10px] font-bold uppercase text-white"
+                    >
+                      {{ resource.status }}
+                    </span>
                   </dd>
                 </div>
               </dl>
@@ -460,10 +602,11 @@ watchEffect(() => {
               ================================== -->
 
               <a
-                v-if="resource.fileUrl"
+                v-if="hasDownload"
                 :href="resource.fileUrl"
                 download
-                class="mt-7 flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
+                class="mt-7 flex w-full items-center justify-center rounded-full bg-yen-gold px-6 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                :aria-label="`Download ${resource.title}`"
               >
                 Download Resource
 
@@ -481,14 +624,14 @@ watchEffect(() => {
               ================================== -->
 
               <a
-                v-else-if="resource.externalUrl"
+                v-else-if="hasExternalResource"
                 :href="resource.externalUrl"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="mt-7 flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
-                :aria-label="`Open ${resource.title} — opens external resource in a new tab`"
+                class="mt-7 flex w-full items-center justify-center rounded-full bg-yen-gold px-6 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                :aria-label="`Open ${resource.title} — opens in a new tab`"
               >
-                Open Resource
+                Access Resource
 
                 <span
                   class="ml-3"
@@ -499,23 +642,27 @@ watchEffect(() => {
               </a>
 
 
-              <!-- Resource unavailable -->
+              <!-- =================================
+                   UNAVAILABLE
+              ================================== -->
 
               <div
                 v-else
-                class="mt-7 rounded-xl border border-white/10 bg-white/5 p-5 text-center"
+                class="mt-7"
               >
-                <p
-                  class="font-display text-xs font-bold text-white/65"
+                <button
+                  type="button"
+                  disabled
+                  class="flex w-full cursor-not-allowed items-center justify-center rounded-full bg-white/10 px-6 py-4 font-display text-sm font-bold text-white/45"
                 >
-                  Resource file not currently available
-                </p>
+                  Resource Unavailable
+                </button>
 
                 <p
-                  class="mt-2 font-body text-xs leading-6 text-white/40"
+                  class="mt-3 text-center font-body text-xs leading-5 text-white/40"
                 >
-                  No approved download or external resource link
-                  has been attached to this entry.
+                  A downloadable file or official external link
+                  is not currently available for this resource.
                 </p>
               </div>
 
@@ -524,7 +671,7 @@ watchEffect(() => {
 
               <RouterLink
                 :to="{ name: 'resources' }"
-                class="mt-4 flex w-full items-center justify-center rounded-full border border-white/20 px-6 py-3.5 font-display text-xs font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
+                class="mt-4 flex w-full items-center justify-center rounded-full border border-white/20 px-6 py-3.5 font-display text-xs font-bold text-white transition hover:border-yen-gold hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold"
               >
                 ← Browse Resources
               </RouterLink>
@@ -539,9 +686,9 @@ watchEffect(() => {
               <p
                 class="font-body text-xs leading-6 text-black/70"
               >
-                Use resources according to the guidance,
-                attribution requirements and terms provided by
-                YEN-Liberia or the original publisher.
+                YEN-Liberia resources should only be downloaded or
+                accessed through verified links published on this
+                website or through trusted partner institutions.
               </p>
             </div>
           </div>
@@ -583,11 +730,13 @@ watchEffect(() => {
 
           <RouterLink
             :to="{ name: 'resources' }"
-            class="inline-flex items-center gap-2 font-display text-sm font-bold text-black transition hover:text-yen-red"
+            class="inline-flex items-center gap-2 rounded-sm font-display text-sm font-bold text-black transition hover:text-yen-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-red"
           >
-            View Resource Library
+            View All Resources
 
-            <span aria-hidden="true">
+            <span
+              aria-hidden="true"
+            >
               →
             </span>
           </RouterLink>
@@ -607,7 +756,7 @@ watchEffect(() => {
             <!-- Image -->
 
             <div
-              class="relative h-[220px] overflow-hidden"
+              class="relative h-[220px] overflow-hidden sm:h-[240px]"
             >
               <img
                 :src="item.image"
@@ -618,14 +767,15 @@ watchEffect(() => {
 
               <div
                 class="absolute inset-0 bg-linear-to-t from-black/65 via-transparent to-transparent"
+                aria-hidden="true"
               ></div>
 
 
               <span
-                v-if="item.type"
+                v-if="item.category"
                 class="absolute left-4 top-4 rounded-full bg-yen-gold px-3 py-2 font-display text-[9px] font-extrabold uppercase text-black"
               >
-                {{ item.type }}
+                {{ item.category }}
               </span>
             </div>
 
@@ -635,18 +785,40 @@ watchEffect(() => {
             <div
               class="flex flex-1 flex-col p-6"
             >
-              <p
-                v-if="item.category"
-                class="font-display text-[9px] font-extrabold uppercase tracking-[0.14em] text-yen-red"
+              <div
+                class="flex flex-wrap items-center gap-3"
               >
-                {{ item.category }}
-              </p>
+                <span
+                  v-if="item.type"
+                  class="font-display text-[9px] font-extrabold uppercase tracking-[0.14em] text-yen-red"
+                >
+                  {{ item.type }}
+                </span>
+
+                <span
+                  v-if="
+                    item.type &&
+                    item.format
+                  "
+                  class="h-1 w-1 rounded-full bg-gray-300"
+                  aria-hidden="true"
+                ></span>
+
+                <span
+                  v-if="item.format"
+                  class="font-display text-xs text-gray-400"
+                >
+                  {{ item.format }}
+                </span>
+              </div>
+
 
               <h3
                 class="mt-3 font-display text-xl font-bold leading-snug text-black"
               >
                 {{ item.title }}
               </h3>
+
 
               <p
                 v-if="item.summary"
@@ -656,7 +828,9 @@ watchEffect(() => {
               </p>
 
 
-              <div class="mt-auto pt-6">
+              <div
+                class="mt-auto pt-6"
+              >
                 <RouterLink
                   :to="{
                     name: 'resource-detail',
@@ -664,7 +838,7 @@ watchEffect(() => {
                       slug: item.slug,
                     },
                   }"
-                  class="flex items-center justify-between rounded-xl bg-black px-5 py-4 font-display text-sm font-bold text-white transition group-hover:bg-yen-red"
+                  class="flex items-center justify-between rounded-xl bg-black px-5 py-4 font-display text-sm font-bold text-white transition group-hover:bg-yen-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-red"
                 >
                   View Resource
 
@@ -687,52 +861,63 @@ watchEffect(() => {
          FINAL CTA
     ========================================= -->
 
-    <section class="bg-white">
+    <section
+      class="bg-white"
+    >
       <div
         class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
         <div
           class="relative overflow-hidden rounded-[1.7rem] bg-black p-7 sm:rounded-[2rem] sm:p-10 lg:p-14"
         >
+          <!-- Decoration -->
+
           <div
             class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-yen-gold/10"
+            aria-hidden="true"
           ></div>
 
 
           <div
             class="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center"
           >
-            <div class="max-w-3xl">
+            <!-- Copy -->
+
+            <div
+              class="max-w-3xl"
+            >
               <p
                 class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
               >
-                Build With Better Tools
+                Build Your Business
               </p>
 
               <h2
                 class="mt-4 font-display text-2xl font-extrabold leading-tight text-white sm:text-4xl"
               >
-                Explore more resources for your business.
+                Explore more tools for your entrepreneurial journey.
               </h2>
 
               <p
                 class="mt-4 max-w-2xl font-body text-sm leading-7 text-white/60 sm:text-base"
               >
-                Browse the full resource library or tell
-                YEN-Liberia what kind of business tool would be
-                useful to you.
+                Browse practical business resources or explore
+                YEN-Liberia programs supporting entrepreneurs
+                across Liberia.
               </p>
             </div>
 
+
+            <!-- CTAs -->
 
             <div
               class="flex flex-col gap-3 sm:flex-row lg:flex-col"
             >
               <RouterLink
                 :to="{ name: 'resources' }"
-                class="inline-flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white sm:w-auto sm:min-w-[220px]"
+                class="inline-flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto sm:min-w-[220px]"
               >
-                Browse Resources
+                Explore Resources
 
                 <span
                   class="ml-3"
@@ -742,11 +927,12 @@ watchEffect(() => {
                 </span>
               </RouterLink>
 
+
               <RouterLink
-                :to="{ name: 'contact' }"
-                class="inline-flex w-full items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold sm:w-auto sm:min-w-[220px]"
+                :to="{ name: 'programs' }"
+                class="inline-flex w-full items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold sm:w-auto sm:min-w-[220px]"
               >
-                Request a Resource
+                Explore Programs
               </RouterLink>
             </div>
           </div>
@@ -757,19 +943,23 @@ watchEffect(() => {
 
 
   <!-- ==========================================
-       INVALID RESOURCE
+       RESOURCE NOT FOUND
   =========================================== -->
 
   <main
     v-else
     class="relative flex min-h-[70vh] items-center overflow-hidden bg-white px-5 py-20 text-center"
   >
+    <!-- Decorations -->
+
     <div
       class="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-yen-gold/15 blur-3xl"
+      aria-hidden="true"
     ></div>
 
     <div
       class="pointer-events-none absolute -right-32 bottom-10 h-72 w-72 rounded-full bg-yen-red/10 blur-3xl"
+      aria-hidden="true"
     ></div>
 
 
@@ -778,6 +968,7 @@ watchEffect(() => {
     >
       <p
         class="font-display text-7xl font-black text-yen-gold sm:text-8xl"
+        aria-hidden="true"
       >
         404
       </p>
@@ -797,8 +988,8 @@ watchEffect(() => {
       <p
         class="mx-auto mt-4 max-w-lg font-body text-sm leading-7 text-gray-600 sm:text-base"
       >
-        The resource may have been removed, unpublished, or the
-        link may be incorrect.
+        The resource may have been removed, unpublished,
+        or the link may be incorrect.
       </p>
 
 
@@ -807,7 +998,7 @@ watchEffect(() => {
       >
         <RouterLink
           :to="{ name: 'resources' }"
-          class="inline-flex items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition hover:bg-yen-red"
+          class="inline-flex items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition hover:bg-yen-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-red"
         >
           Browse Resources
 
@@ -819,9 +1010,10 @@ watchEffect(() => {
           </span>
         </RouterLink>
 
+
         <RouterLink
           :to="{ name: 'home' }"
-          class="inline-flex items-center justify-center rounded-full border border-black px-7 py-4 font-display text-sm font-bold text-black transition hover:bg-yen-gold"
+          class="inline-flex items-center justify-center rounded-full border border-black px-7 py-4 font-display text-sm font-bold text-black transition hover:bg-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-red"
         >
           Return Home
         </RouterLink>

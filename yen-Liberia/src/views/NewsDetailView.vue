@@ -11,6 +11,10 @@ import {
   getRelatedNews,
 } from "@/data/news"
 
+import {
+  setPageSeo,
+} from "@/utils/seo"
+
 
 /*
 |--------------------------------------------------------------------------
@@ -93,20 +97,113 @@ const relatedArticles = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
-| DYNAMIC DOCUMENT TITLE
+| NEWS ARTICLE SEO
+|--------------------------------------------------------------------------
+|
+| The router initially provides generic metadata:
+|
+| News Article | Youth Entrepreneurs Network–Liberia
+|
+| Once the article is resolved, replace it with:
+|
+| - Actual article title
+| - Article-specific description
+| - Canonical URL
+| - Open Graph metadata
+| - Twitter/X metadata
+|
 |--------------------------------------------------------------------------
 */
 
 watchEffect(() => {
-  const siteName =
-    "Youth Entrepreneurs Network–Liberia"
+  /*
+  |--------------------------------------------------------------------------
+  | ARTICLE NOT FOUND
+  |--------------------------------------------------------------------------
+  */
 
-  document.title = article.value
-    ? `${article.value.title} | ${siteName}`
-    : `Article Not Found | ${siteName}`
+  if (!article.value) {
+    setPageSeo({
+      title:
+        "Article Not Found",
+
+      description:
+        "The requested YEN-Liberia news article could not be found.",
+
+      path:
+        route.path,
+
+      robots:
+        "noindex, follow",
+
+      type:
+        "website",
+    })
+
+    return
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | ARTICLE DESCRIPTION
+  |--------------------------------------------------------------------------
+  |
+  | Prefer:
+  |
+  | 1. excerpt
+  | 2. intro
+  | 3. first content paragraph
+  |
+  */
+
+  const description =
+    article.value.excerpt ||
+    article.value.intro ||
+    contentParagraphs.value[0] ||
+    "Read this entrepreneurship news story, update or insight from Youth Entrepreneurs Network–Liberia."
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | ARTICLE IMAGE
+  |--------------------------------------------------------------------------
+  */
+
+  const image =
+    article.value.image
+      ? new URL(
+          article.value.image,
+          "https://yen-lib.netlify.app",
+        ).toString()
+      : undefined
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | APPLY ARTICLE SEO
+  |--------------------------------------------------------------------------
+  */
+
+  setPageSeo({
+    title:
+      article.value.title,
+
+    description,
+
+    path:
+      route.path,
+
+    image,
+
+    robots:
+      "index, follow",
+
+    type:
+      "article",
+  })
 })
 </script>
-
 
 <template>
   <!-- ==========================================

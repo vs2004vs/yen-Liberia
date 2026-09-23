@@ -11,6 +11,10 @@ import {
   getProgramBySlug,
 } from "@/data/programs"
 
+import {
+  setPageSeo,
+} from "@/utils/seo"
+
 
 /*
 |--------------------------------------------------------------------------
@@ -75,8 +79,10 @@ const programPartners = computed(() => {
 |--------------------------------------------------------------------------
 |
 | Prefer programs from the same category.
-| If there are fewer than 3, fill the remaining
-| positions with other available programs.
+|
+| If there are fewer than 3 programs in the same
+| category, fill the remaining positions with other
+| available programs.
 |
 */
 
@@ -117,24 +123,119 @@ const relatedPrograms = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
-| DYNAMIC DOCUMENT TITLE
+| PROGRAM SEO
 |--------------------------------------------------------------------------
 |
-| The router currently provides a generic "Program" title.
-| A detail page should use the actual program name.
+| The router provides generic fallback metadata such as:
 |
+| Program | Youth Entrepreneurs Network–Liberia
+|
+| Once this detail page resolves the actual program from the
+| slug, replace that generic metadata with the real program:
+|
+| - title
+| - description
+| - canonical URL
+| - Open Graph metadata
+| - Twitter/X metadata
+|
+|--------------------------------------------------------------------------
 */
 
 watchEffect(() => {
-  const siteName =
-    "Youth Entrepreneurs Network–Liberia"
+  /*
+  |--------------------------------------------------------------------------
+  | PROGRAM NOT FOUND
+  |--------------------------------------------------------------------------
+  */
 
-  document.title = program.value
-    ? `${program.value.title} | ${siteName}`
-    : `Program Not Found | ${siteName}`
+  if (!program.value) {
+    setPageSeo({
+      title:
+        "Program Not Found",
+
+      description:
+        "The requested YEN-Liberia program could not be found.",
+
+      path:
+        route.path,
+
+      robots:
+        "noindex, follow",
+
+      type:
+        "website",
+    })
+
+    return
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | PROGRAM DESCRIPTION
+  |--------------------------------------------------------------------------
+  |
+  | Prefer the short summary because it normally works better
+  | as search-result and social-sharing copy.
+  |
+  | Fall back to the full description if no summary exists.
+  |
+  */
+
+  const description =
+    program.value.summary ||
+    program.value.description ||
+    "Learn more about this YEN-Liberia entrepreneurship and business development program."
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | PROGRAM IMAGE
+  |--------------------------------------------------------------------------
+  |
+  | Program data currently uses local image paths such as:
+  |
+  | /images/...
+  |
+  | Social metadata should use an absolute public URL.
+  |
+  */
+
+  const image =
+    program.value.image
+      ? new URL(
+          program.value.image,
+          "https://yen-lib.netlify.app",
+        ).toString()
+      : undefined
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | APPLY SEO
+  |--------------------------------------------------------------------------
+  */
+
+  setPageSeo({
+    title:
+      program.value.title,
+
+    description,
+
+    path:
+      route.path,
+
+    image,
+
+    robots:
+      "index, follow",
+
+    type:
+      "website",
+  })
 })
 </script>
-
 
 <template>
   <!-- ==========================================
@@ -145,7 +246,6 @@ watchEffect(() => {
     v-if="program"
     class="w-full overflow-hidden"
   >
-
     <!-- ========================================
          HERO
     ========================================= -->
@@ -166,10 +266,12 @@ watchEffect(() => {
 
       <div
         class="absolute inset-0 bg-linear-to-r from-black/90 via-black/65 to-black/25 sm:from-black/85 sm:via-black/55 sm:to-black/10"
+        aria-hidden="true"
       ></div>
 
       <div
         class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20"
+        aria-hidden="true"
       ></div>
 
 
@@ -189,7 +291,7 @@ watchEffect(() => {
           >
             <RouterLink
               :to="{ name: 'home' }"
-              class="text-white/55 transition hover:text-yen-gold"
+              class="rounded-sm text-white/55 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold"
             >
               Home
             </RouterLink>
@@ -203,7 +305,7 @@ watchEffect(() => {
 
             <RouterLink
               :to="{ name: 'programs' }"
-              class="text-white/55 transition hover:text-yen-gold"
+              class="rounded-sm text-white/55 transition hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold"
             >
               Programs
             </RouterLink>
@@ -287,6 +389,7 @@ watchEffect(() => {
 
       <div
         class="absolute bottom-0 left-0 z-20 h-1 w-full bg-linear-to-r from-yen-red via-yen-gold to-yen-red"
+        aria-hidden="true"
       ></div>
     </section>
 
@@ -295,7 +398,9 @@ watchEffect(() => {
          OVERVIEW
     ========================================= -->
 
-    <section class="bg-white">
+    <section
+      class="bg-white"
+    >
       <div
         class="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:px-8 lg:py-28"
       >
@@ -328,21 +433,22 @@ watchEffect(() => {
                OBJECTIVES
           ================================== -->
 
-          <div
+          <section
             v-if="objectives.length"
             class="mt-10 sm:mt-12"
+            aria-labelledby="program-objectives-heading"
           >
             <h3
+              id="program-objectives-heading"
               class="font-display text-2xl font-bold text-black"
             >
               Program Objectives
             </h3>
 
-
-            <div
+            <ul
               class="mt-6 space-y-4"
             >
-              <div
+              <li
                 v-for="objective in objectives"
                 :key="objective"
                 class="flex items-start gap-4 rounded-xl bg-[#f7f7f5] p-4 sm:bg-transparent sm:p-0"
@@ -354,14 +460,14 @@ watchEffect(() => {
                   ✓
                 </span>
 
-                <p
+                <span
                   class="font-body text-sm leading-7 text-gray-600"
                 >
                   {{ objective }}
-                </p>
-              </div>
-            </div>
-          </div>
+                </span>
+              </li>
+            </ul>
+          </section>
         </div>
 
 
@@ -382,7 +488,7 @@ watchEffect(() => {
             </p>
 
 
-            <div
+            <dl
               class="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-1"
             >
               <!-- Date -->
@@ -390,17 +496,17 @@ watchEffect(() => {
               <div
                 v-if="program.date"
               >
-                <p
+                <dt
                   class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                 >
                   Date
-                </p>
+                </dt>
 
-                <p
+                <dd
                   class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                 >
                   {{ program.date }}
-                </p>
+                </dd>
               </div>
 
 
@@ -409,17 +515,17 @@ watchEffect(() => {
               <div
                 v-if="program.location"
               >
-                <p
+                <dt
                   class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                 >
                   Location
-                </p>
+                </dt>
 
-                <p
+                <dd
                   class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                 >
                   {{ program.location }}
-                </p>
+                </dd>
               </div>
 
 
@@ -428,17 +534,17 @@ watchEffect(() => {
               <div
                 v-if="program.category"
               >
-                <p
+                <dt
                   class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                 >
                   Category
-                </p>
+                </dt>
 
-                <p
+                <dd
                   class="mt-2 font-display text-sm font-semibold leading-6 text-white"
                 >
                   {{ program.category }}
-                </p>
+                </dd>
               </div>
 
 
@@ -447,17 +553,19 @@ watchEffect(() => {
               <div
                 v-if="program.status"
               >
-                <p
+                <dt
                   class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                 >
                   Status
-                </p>
+                </dt>
 
-                <p
-                  class="mt-2 inline-flex rounded-full bg-yen-gold px-3 py-2 font-display text-[10px] font-bold uppercase text-black"
-                >
-                  {{ program.status }}
-                </p>
+                <dd>
+                  <span
+                    class="mt-2 inline-flex rounded-full bg-yen-gold px-3 py-2 font-display text-[10px] font-bold uppercase text-black"
+                  >
+                    {{ program.status }}
+                  </span>
+                </dd>
               </div>
 
 
@@ -470,34 +578,36 @@ watchEffect(() => {
                 "
                 class="sm:col-span-2 lg:col-span-1"
               >
-                <p
+                <dt
                   class="font-display text-[9px] font-bold uppercase tracking-wider text-white/35 sm:text-[10px]"
                 >
                   Impact
-                </p>
+                </dt>
 
-                <p
-                  v-if="program.impact"
-                  class="mt-2 font-display text-3xl font-extrabold text-yen-gold"
-                >
-                  {{ program.impact }}
-                </p>
+                <dd>
+                  <p
+                    v-if="program.impact"
+                    class="mt-2 font-display text-3xl font-extrabold text-yen-gold"
+                  >
+                    {{ program.impact }}
+                  </p>
 
-                <p
-                  v-if="program.impactLabel"
-                  class="mt-1 font-display text-xs leading-5 text-white/50"
-                >
-                  {{ program.impactLabel }}
-                </p>
+                  <p
+                    v-if="program.impactLabel"
+                    class="mt-1 font-display text-xs leading-5 text-white/50"
+                  >
+                    {{ program.impactLabel }}
+                  </p>
+                </dd>
               </div>
-            </div>
+            </dl>
 
 
             <!-- Back link -->
 
             <RouterLink
               :to="{ name: 'programs' }"
-              class="mt-8 flex items-center justify-center rounded-full border border-white/20 px-5 py-3.5 font-display text-xs font-bold text-white transition hover:border-yen-gold hover:text-yen-gold"
+              class="mt-8 flex items-center justify-center rounded-full border border-white/20 px-5 py-3.5 font-display text-xs font-bold text-white transition hover:border-yen-gold hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold"
             >
               ← Explore All Programs
             </RouterLink>
@@ -518,7 +628,9 @@ watchEffect(() => {
       <div
         class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
-        <div class="max-w-3xl">
+        <div
+          class="max-w-3xl"
+        >
           <p
             class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
           >
@@ -550,6 +662,7 @@ watchEffect(() => {
           >
             <span
               class="font-display text-sm font-extrabold text-yen-gold"
+              aria-hidden="true"
             >
               {{
                 String(index + 1)
@@ -565,6 +678,7 @@ watchEffect(() => {
 
             <div
               class="mt-auto pt-6"
+              aria-hidden="true"
             >
               <div
                 class="h-[3px] w-8 bg-yen-red transition-all duration-300 group-hover:w-16"
@@ -587,7 +701,9 @@ watchEffect(() => {
       <div
         class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
-        <div class="max-w-3xl">
+        <div
+          class="max-w-3xl"
+        >
           <p
             class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-red sm:text-xs"
           >
@@ -609,17 +725,17 @@ watchEffect(() => {
         </div>
 
 
-        <div
+        <ul
           class="mt-9 flex flex-wrap gap-3"
         >
-          <span
+          <li
             v-for="partner in programPartners"
             :key="partner"
             class="rounded-full border border-gray-200 bg-[#f7f7f5] px-4 py-3 font-display text-xs font-bold leading-5 text-black sm:px-5 sm:text-sm"
           >
             {{ partner }}
-          </span>
-        </div>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -657,11 +773,13 @@ watchEffect(() => {
 
           <RouterLink
             :to="{ name: 'programs' }"
-            class="inline-flex items-center gap-2 font-display text-sm font-bold text-black transition hover:text-yen-red"
+            class="inline-flex items-center gap-2 rounded-sm font-display text-sm font-bold text-black transition hover:text-yen-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-red"
           >
             View All Programs
 
-            <span aria-hidden="true">
+            <span
+              aria-hidden="true"
+            >
               →
             </span>
           </RouterLink>
@@ -692,6 +810,7 @@ watchEffect(() => {
 
               <div
                 class="absolute inset-0 bg-linear-to-t from-black/65 via-transparent to-transparent"
+                aria-hidden="true"
               ></div>
 
 
@@ -723,7 +842,9 @@ watchEffect(() => {
               </p>
 
 
-              <div class="mt-auto pt-6">
+              <div
+                class="mt-auto pt-6"
+              >
                 <RouterLink
                   :to="{
                     name: 'program-detail',
@@ -731,7 +852,7 @@ watchEffect(() => {
                       slug: item.slug,
                     },
                   }"
-                  class="flex items-center justify-between rounded-xl bg-black px-5 py-4 font-display text-sm font-bold text-white transition group-hover:bg-yen-red"
+                  class="flex items-center justify-between rounded-xl bg-black px-5 py-4 font-display text-sm font-bold text-white transition group-hover:bg-yen-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-red"
                 >
                   View Program
 
@@ -754,7 +875,9 @@ watchEffect(() => {
          FINAL CTA
     ========================================= -->
 
-    <section class="bg-white">
+    <section
+      class="bg-white"
+    >
       <div
         class="mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-24"
       >
@@ -765,6 +888,7 @@ watchEffect(() => {
 
           <div
             class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-yen-gold/10"
+            aria-hidden="true"
           ></div>
 
 
@@ -773,7 +897,9 @@ watchEffect(() => {
           >
             <!-- Copy -->
 
-            <div class="max-w-3xl">
+            <div
+              class="max-w-3xl"
+            >
               <p
                 class="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-yen-gold sm:text-xs"
               >
@@ -803,7 +929,7 @@ watchEffect(() => {
             >
               <RouterLink
                 :to="{ name: 'opportunities' }"
-                class="inline-flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white sm:w-auto sm:min-w-[220px]"
+                class="inline-flex w-full items-center justify-center rounded-full bg-yen-gold px-7 py-4 font-display text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto sm:min-w-[220px]"
               >
                 Explore Opportunities
 
@@ -818,7 +944,7 @@ watchEffect(() => {
 
               <RouterLink
                 :to="{ name: 'programs' }"
-                class="inline-flex w-full items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold sm:w-auto sm:min-w-[220px]"
+                class="inline-flex w-full items-center justify-center rounded-full border border-white/25 px-7 py-4 font-display text-sm font-bold text-white transition hover:border-yen-gold hover:text-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-gold sm:w-auto sm:min-w-[220px]"
               >
                 All Programs
               </RouterLink>
@@ -842,10 +968,12 @@ watchEffect(() => {
 
     <div
       class="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-yen-gold/15 blur-3xl"
+      aria-hidden="true"
     ></div>
 
     <div
       class="pointer-events-none absolute -right-32 bottom-10 h-72 w-72 rounded-full bg-yen-red/10 blur-3xl"
+      aria-hidden="true"
     ></div>
 
 
@@ -854,6 +982,7 @@ watchEffect(() => {
     >
       <p
         class="font-display text-7xl font-black text-yen-gold sm:text-8xl"
+        aria-hidden="true"
       >
         404
       </p>
@@ -883,7 +1012,7 @@ watchEffect(() => {
       >
         <RouterLink
           :to="{ name: 'programs' }"
-          class="inline-flex items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition hover:bg-yen-red"
+          class="inline-flex items-center justify-center rounded-full bg-black px-7 py-4 font-display text-sm font-bold text-white transition hover:bg-yen-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-red"
         >
           View Programs
 
@@ -897,7 +1026,7 @@ watchEffect(() => {
 
         <RouterLink
           :to="{ name: 'home' }"
-          class="inline-flex items-center justify-center rounded-full border border-black px-7 py-4 font-display text-sm font-bold text-black transition hover:bg-yen-gold"
+          class="inline-flex items-center justify-center rounded-full border border-black px-7 py-4 font-display text-sm font-bold text-black transition hover:bg-yen-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yen-red"
         >
           Return Home
         </RouterLink>

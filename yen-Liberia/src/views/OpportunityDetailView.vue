@@ -11,6 +11,10 @@ import {
   getOpportunityBySlug,
 } from "@/data/opportunities"
 
+import {
+  setPageSeo,
+} from "@/utils/seo"
+
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +75,31 @@ const requirements = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
+| INDEXING SAFEGUARD
+|--------------------------------------------------------------------------
+|
+| Current opportunity records are still development/sample content.
+|
+| They remain visible on the site, but search engines should not
+| intentionally index them until we explicitly approve a real record.
+|
+| Later, a verified opportunity can include:
+|
+| indexable: true
+|
+| inside opportunities.js.
+|
+*/
+
+const shouldIndexOpportunity = computed(() => {
+  return (
+    opportunity.value?.indexable === true
+  )
+})
+
+
+/*
+|--------------------------------------------------------------------------
 | RELATED OPPORTUNITIES
 |--------------------------------------------------------------------------
 |
@@ -116,17 +145,99 @@ const relatedOpportunities = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
-| DYNAMIC PAGE TITLE
+| OPPORTUNITY SEO
+|--------------------------------------------------------------------------
+|
+| Replace the router's generic:
+|
+| Opportunity | Youth Entrepreneurs Network–Liberia
+|
+| with the actual opportunity information.
+|
 |--------------------------------------------------------------------------
 */
 
 watchEffect(() => {
-  const siteName =
-    "Youth Entrepreneurs Network–Liberia"
+  /*
+  |--------------------------------------------------------------------------
+  | OPPORTUNITY NOT FOUND
+  |--------------------------------------------------------------------------
+  */
 
-  document.title = opportunity.value
-    ? `${opportunity.value.title} | ${siteName}`
-    : `Opportunity Not Found | ${siteName}`
+  if (!opportunity.value) {
+    setPageSeo({
+      title:
+        "Opportunity Not Found",
+
+      description:
+        "The requested YEN-Liberia opportunity could not be found.",
+
+      path:
+        route.path,
+
+      robots:
+        "noindex, follow",
+
+      type:
+        "website",
+    })
+
+    return
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | DESCRIPTION
+  |--------------------------------------------------------------------------
+  */
+
+  const description =
+    opportunity.value.summary ||
+    opportunity.value.description ||
+    "Explore this entrepreneurship opportunity shared through the YEN-Liberia Opportunities Hub."
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | SOCIAL IMAGE
+  |--------------------------------------------------------------------------
+  */
+
+  const image =
+    opportunity.value.image
+      ? new URL(
+          opportunity.value.image,
+          "https://yen-lib.netlify.app",
+        ).toString()
+      : undefined
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | APPLY SEO
+  |--------------------------------------------------------------------------
+  */
+
+  setPageSeo({
+    title:
+      opportunity.value.title,
+
+    description,
+
+    path:
+      route.path,
+
+    image,
+
+    robots:
+      shouldIndexOpportunity.value
+        ? "index, follow"
+        : "noindex, follow",
+
+    type:
+      "website",
+  })
 })
 </script>
 

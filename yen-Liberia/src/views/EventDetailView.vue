@@ -11,6 +11,10 @@ import {
   getEventBySlug,
 } from "@/data/events"
 
+import {
+  setPageSeo,
+} from "@/utils/seo"
+
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +109,7 @@ const fullLocation = computed(() => {
 |--------------------------------------------------------------------------
 |
 | Priority:
+|
 | 1. Same category
 | 2. Other events
 |
@@ -118,10 +123,11 @@ const relatedEvents = computed(() => {
   const currentId =
     event.value.id
 
-  const others = events.filter(
-    (item) =>
-      item.id !== currentId,
-  )
+  const others =
+    events.filter(
+      (item) =>
+        item.id !== currentId,
+    )
 
   const sameCategory =
     others.filter(
@@ -146,20 +152,105 @@ const relatedEvents = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
-| DYNAMIC PAGE TITLE
+| EVENT SEO
+|--------------------------------------------------------------------------
+|
+| The router initially provides generic metadata:
+|
+| Event | Youth Entrepreneurs Network–Liberia
+|
+| Once the event record is available, this page replaces it with
+| the actual event title, summary, image and canonical URL.
+|
 |--------------------------------------------------------------------------
 */
 
 watchEffect(() => {
-  const siteName =
-    "Youth Entrepreneurs Network–Liberia"
+  /*
+  |--------------------------------------------------------------------------
+  | EVENT NOT FOUND
+  |--------------------------------------------------------------------------
+  */
 
-  document.title = event.value
-    ? `${event.value.title} | ${siteName}`
-    : `Event Not Found | ${siteName}`
+  if (!event.value) {
+    setPageSeo({
+      title:
+        "Event Not Found",
+
+      description:
+        "The requested YEN-Liberia event could not be found.",
+
+      path:
+        route.path,
+
+      robots:
+        "noindex, follow",
+
+      type:
+        "website",
+    })
+
+    return
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | EVENT DESCRIPTION
+  |--------------------------------------------------------------------------
+  */
+
+  const description =
+    event.value.summary ||
+    event.value.description ||
+    event.value.theme ||
+    "Learn more about this YEN-Liberia entrepreneurship event, its activities, organizers and highlights."
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | EVENT IMAGE
+  |--------------------------------------------------------------------------
+  |
+  | Convert the local image path into a full public URL for
+  | Open Graph and social-sharing metadata.
+  |
+  */
+
+  const image =
+    event.value.image
+      ? new URL(
+          event.value.image,
+          "https://yen-lib.netlify.app",
+        ).toString()
+      : undefined
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | APPLY EVENT SEO
+  |--------------------------------------------------------------------------
+  */
+
+  setPageSeo({
+    title:
+      event.value.title,
+
+    description,
+
+    path:
+      route.path,
+
+    image,
+
+    robots:
+      "index, follow",
+
+    type:
+      "website",
+  })
 })
 </script>
-
 
 <template>
   <!-- ==========================================

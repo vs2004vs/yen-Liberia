@@ -11,6 +11,10 @@ import {
   getEntrepreneurBySlug,
 } from "@/data/entrepreneurs"
 
+import {
+  setPageSeo,
+} from "@/utils/seo"
+
 
 /*
 |--------------------------------------------------------------------------
@@ -96,17 +100,43 @@ const socialLinks = computed(() => {
   return [
     {
       label: "Facebook",
-      url: entrepreneur.value.facebook,
+      url:
+        entrepreneur.value.facebook,
     },
+
     {
       label: "Instagram",
-      url: entrepreneur.value.instagram,
+      url:
+        entrepreneur.value.instagram,
     },
+
     {
       label: "LinkedIn",
-      url: entrepreneur.value.linkedin,
+      url:
+        entrepreneur.value.linkedin,
     },
-  ].filter((item) => item.url)
+  ].filter(
+    (item) =>
+      item.url,
+  )
+})
+
+
+/*
+|--------------------------------------------------------------------------
+| SAMPLE PROFILE SAFEGUARD
+|--------------------------------------------------------------------------
+|
+| Sample entrepreneur profiles can remain visible while development
+| continues, but should not be intentionally indexed by search engines.
+|
+*/
+
+const isSampleProfile = computed(() => {
+  return (
+    entrepreneur.value?.memberStatus ===
+    "Sample Profile"
+  )
 })
 
 
@@ -116,6 +146,7 @@ const socialLinks = computed(() => {
 |--------------------------------------------------------------------------
 |
 | Priority:
+|
 | 1. Same industry
 | 2. Same county
 | 3. Other entrepreneurs
@@ -130,10 +161,11 @@ const relatedEntrepreneurs = computed(() => {
   const currentId =
     entrepreneur.value.id
 
-  const others = entrepreneurs.filter(
-    (item) =>
-      item.id !== currentId,
-  )
+  const others =
+    entrepreneurs.filter(
+      (item) =>
+        item.id !== currentId,
+    )
 
 
   const sameIndustry =
@@ -174,20 +206,115 @@ const relatedEntrepreneurs = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
-| DYNAMIC DOCUMENT TITLE
+| ENTREPRENEUR PROFILE SEO
 |--------------------------------------------------------------------------
+|
+| Replace the router's generic:
+|
+| Entrepreneur Profile | Youth Entrepreneurs Network–Liberia
+|
+| with the actual entrepreneur's information.
+|
 */
 
 watchEffect(() => {
-  const siteName =
-    "Youth Entrepreneurs Network–Liberia"
+  /*
+  |--------------------------------------------------------------------------
+  | PROFILE NOT FOUND
+  |--------------------------------------------------------------------------
+  */
 
-  document.title = entrepreneur.value
-    ? `${entrepreneur.value.name} | ${siteName}`
-    : `Entrepreneur Not Found | ${siteName}`
+  if (!entrepreneur.value) {
+    setPageSeo({
+      title:
+        "Entrepreneur Not Found",
+
+      description:
+        "The requested YEN-Liberia entrepreneur profile could not be found.",
+
+      path:
+        route.path,
+
+      robots:
+        "noindex, follow",
+
+      type:
+        "website",
+    })
+
+    return
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | PROFILE DESCRIPTION
+  |--------------------------------------------------------------------------
+  |
+  | Prefer concise profile copy first.
+  |
+  */
+
+  const description =
+    entrepreneur.value.headline ||
+    entrepreneur.value.shortDescription ||
+    entrepreneur.value.about ||
+    (
+      entrepreneur.value.business
+        ? `Learn about ${entrepreneur.value.name} and ${entrepreneur.value.business}, featured in the YEN-Liberia entrepreneur network.`
+        : `Learn about ${entrepreneur.value.name}, featured in the YEN-Liberia entrepreneur network.`
+    )
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | PROFILE IMAGE
+  |--------------------------------------------------------------------------
+  */
+
+  const image =
+    entrepreneur.value.image
+      ? new URL(
+          entrepreneur.value.image,
+          "https://yen-lib.netlify.app",
+        ).toString()
+      : undefined
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | APPLY PROFILE SEO
+  |--------------------------------------------------------------------------
+  */
+
+  setPageSeo({
+    title:
+      entrepreneur.value.business
+        ? `${entrepreneur.value.name} — ${entrepreneur.value.business}`
+        : entrepreneur.value.name,
+
+    description,
+
+    path:
+      route.path,
+
+    image,
+
+    /*
+      Keep development/sample profiles out of search results
+      without removing them from the website.
+    */
+
+    robots:
+      isSampleProfile.value
+        ? "noindex, follow"
+        : "index, follow",
+
+    type:
+      "profile",
+  })
 })
 </script>
-
 
 <template>
   <!-- ==========================================
